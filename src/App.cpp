@@ -24,7 +24,10 @@ void App::indexFiles() {
     cout << "Indexing: " << files[fileID] << '\n';
 
     vector<string> title, content;
-    TXTParser::parseFileToWords("data/" + files[fileID], title, content);
+    if (!TXTParser::parseFileToWords("data/" + files[fileID], title, content)) {
+      cerr << "Error: Could not parse file " << files[fileID] << '\n';
+      exit(1);
+    }
     cout << "Found " << title.size() << " words in title, " << content.size() << " in content\n";
 
     for (int pos = 0; pos < (int)title.size(); ++pos) {
@@ -41,7 +44,24 @@ void App::indexFiles() {
   cout << "trieContent has " << Global::trieContent.numWords << " words\n";
 }
 
+void App::indexStopwords() {
+  ifstream f("data/stopwords.txt");
+  if (!f.is_open()) {
+    cerr << "Error: Could not open stopwords file.\n";
+    exit(1);
+  }
+
+  string stopword;
+  while (f >> stopword) {
+    Global::trieStopWord.addWord(stopword, -1, -1);
+  }
+
+  cout << "Done indexing stopwords!\n";
+  cout << "trieStopWord has " << Global::trieStopWord.numWords << " words\n";
+}
+
 void App::run() {
   cout << "Hello World!\n";
   indexFiles();
+  indexStopwords();
 }

@@ -12,6 +12,7 @@ using namespace std;
 class App {
 private:
   void indexFiles();
+  void indexStopwords();
 
 public:
   App();
