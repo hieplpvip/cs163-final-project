@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace TXTParser {
-  bool parseFileToTokens(const string &filename, vector<string> &title, vector<string> &tokens);
+  bool parseFileToWords(const string &filename, vector<string> &title, vector<string> &content);
 };
 
 #endif
