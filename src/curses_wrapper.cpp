@@ -1,5 +1,8 @@
-#include "curses_wrapper.h"
+#ifndef _WIN32
+#include <signal.h>
+#endif
 #include <iostream>
+#include "curses_wrapper.h"
 
 class ncursesbuf : public std::streambuf {
 private:
@@ -60,7 +63,17 @@ public:
   }
 };
 
+#ifndef _WIN32
+void resizeHandler(int sig) {
+  redrawwin(stdscr);
+}
+#endif
+
 CursesInitializer::CursesInitializer() {
+#ifndef _WIN32
+  signal(SIGWINCH, resizeHandler);
+#endif
+
   // init ncurses
   initscr();
   cbreak();
@@ -102,7 +115,7 @@ CursesInitializer::~CursesInitializer() {
   endwin();
 }
 
-void setTextColor(TextColor c) {
+void curses_setTextColor(TextColor c) {
   attron(COLOR_PAIR(c));
   refresh();
 }

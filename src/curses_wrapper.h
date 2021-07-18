@@ -10,7 +10,7 @@ public:
   ~CursesInitializer();
 };
 
-enum TextColor {
+enum class TextColor {
   WHITE = 1,
   RED,
   GREEN,
@@ -20,4 +20,4 @@ enum TextColor {
   CYAN,
 };
 
-void setTextColor(TextColor c);
+void curses_setTextColor(TextColor c);

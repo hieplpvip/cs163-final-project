@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "curses_wrapper.h"
+#include "Utils.h"
 #include "parser/TXTParser.h"
 
 using namespace std;
@@ -14,7 +14,6 @@ class App {
 private:
   void indexFiles();
   void indexStopwords();
-  CursesInitializer _curses;
 
 public:
   App();

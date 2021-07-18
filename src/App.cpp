@@ -61,16 +61,9 @@ void App::indexStopwords() {
 }
 
 void App::run() {
-  //string name;
-  //cout << "Please enter your name: ";
-  //setTextColor(TextColor::BLUE);
-  //getline(cin, name);
-  //setTextColor(TextColor::GREEN);
-  //cout << "Hello ";
-  //setTextColor(TextColor::BLUE);
-  //cout << name << "!\n";
-  //setTextColor(TextColor::WHITE);
+  testColor();
+  //indexFiles();
+  //indexStopwords();
 
-  indexFiles();
-  indexStopwords();
+  setTextColor(TextColor::WHITE);
 }
