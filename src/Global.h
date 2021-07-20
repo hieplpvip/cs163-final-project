@@ -8,6 +8,4 @@ namespace Global {
   extern Trie trieTitle, trieContent, trieStopWord;
 };
 
-using namespace Global;
-
 #endif

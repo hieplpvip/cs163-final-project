@@ -20,7 +20,7 @@ Trie::~Trie() {
   numWords = 0;
 }
 
-void Trie::addWord(const string& word, int fileID, int pos) {
+void Trie::addWord(const std::string& word, int fileID, int pos) {
   TrieNode* cur = root;
   bool not_empty_word = false;
 
@@ -52,7 +52,7 @@ void Trie::addWord(const string& word, int fileID, int pos) {
   }
 }
 
-TrieNode* Trie::findWord(const string& word) {
+TrieNode* Trie::findWord(const std::string& word) {
   if (root == nullptr) {
     return nullptr;
   }

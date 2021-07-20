@@ -10,7 +10,7 @@
  * @return `true` if the file is parsed successfully, otherwise `false`.
  */
 bool TXTParser::parseFileToWords(const string &filename, vector<string> &title, vector<string> &content) {
-  ifstream f(filename);
+  std::ifstream f(filename);
   if (!f.is_open()) {
     // Could not open file
     return false;

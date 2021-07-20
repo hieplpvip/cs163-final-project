@@ -1,6 +1,9 @@
 #include "App.h"
 #include "Global.h"
 
+using std::cin, std::cout, std::cerr;
+using std::string, std::vector;
+
 App::App() {}
 
 App::~App() {}
@@ -14,7 +17,7 @@ void App::indexFiles() {
 
   // Read filenames
   vector<string> files;
-  ifstream index_list("data/__index.txt");
+  std::ifstream index_list("data/__index.txt");
   if (!index_list.is_open()) {
     setTextColor(TextColor::RED);
     cerr << "Error: Could not open index file.\n";
@@ -54,7 +57,7 @@ void App::indexFiles() {
   time = (clock() - time) / CLOCKS_PER_SEC;
 
   setTextColor(TextColor::GREEN);
-  cout << "Done indexing " << files.size() << " files in " << fixed << setprecision(2) << time << " seconds!\n";
+  cout << "Done indexing " << files.size() << " files in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
   cout << "trieTitle has " << Global::trieTitle.numWords << " words\n";
   cout << "trieContent has " << Global::trieContent.numWords << " words\n";
   setTextColor(TextColor::WHITE);
@@ -65,7 +68,7 @@ void App::indexStopwords() {
   cout << "Begin indexing stopwords...\n";
   setTextColor(TextColor::WHITE);
 
-  ifstream f("data/stopwords.txt");
+  std::ifstream f("data/stopwords.txt");
   if (!f.is_open()) {
     setTextColor(TextColor::RED);
     cerr << "Error: Could not open stopwords file.\n";
@@ -79,7 +82,7 @@ void App::indexStopwords() {
   }
 
   setTextColor(TextColor::GREEN);
-  cout << "Done indexing stopwords in " << fixed << setprecision(2) << time << " seconds!\n";
+  cout << "Done indexing stopwords in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
   cout << "trieStopWord has " << Global::trieStopWord.numWords << " words\n";
   setTextColor(TextColor::WHITE);
 }

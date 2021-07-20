@@ -9,8 +9,6 @@
 #include "Utils.h"
 #include "file_parsers/TXTParser.h"
 
-using namespace std;
-
 class App {
 private:
   void indexFiles();
