@@ -1,5 +1,13 @@
 #include "App.h"
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+#include "Engine.h"
 #include "Global.h"
+#include "Utils.h"
+#include "file_parsers/TXTParser.h"
 
 using std::cin, std::cout, std::cerr;
 using std::string, std::vector;
@@ -125,6 +133,8 @@ void App::processSearch() {
   cout << "Search for: ";
   cin.ignore();
   getline(cin, query);
+
+  Engine::processSearch(query);
 }
 
 void App::run() {
