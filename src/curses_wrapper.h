@@ -1,3 +1,6 @@
+#ifndef CURSES_WRAPPER_H
+#define CURSES_WRAPPER_H
+
 #include <curses.h>
 #include <streambuf>
 
@@ -21,3 +24,5 @@ enum class TextColor {
 };
 
 void curses_setTextColor(TextColor c);
+
+#endif

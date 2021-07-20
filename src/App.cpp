@@ -84,11 +84,59 @@ void App::indexStopwords() {
   setTextColor(TextColor::WHITE);
 }
 
+void App::showLogo() {
+  setTextColor(TextColor::BLUE);
+  cout << "Put some fancy logo here\n";
+  setTextColor(TextColor::WHITE);
+}
+
+void App::showMenu() {
+  while (true) {
+    clearScreen();
+    showLogo();
+
+    int cmd;
+    cout << "0. Quit\n";
+    cout << "1. Search\n";
+    cout << "Your choice: ";
+    cin >> cmd;
+
+    if (cmd == 0) {
+      break;
+    } else if (cmd == 1) {
+      processSearch();
+    } else {
+      setTextColor(TextColor::RED);
+      cout << "Error: Invalid choice\n";
+      waitForEnter();
+      setTextColor(TextColor::WHITE);
+    }
+  }
+}
+
+void App::processSearch() {
+  clearScreen();
+  showLogo();
+
+  string query;
+  cout << "Search for: ";
+  cin.ignore();
+  getline(cin, query);
+}
+
 void App::run() {
+  clearScreen();
+
   indexFiles();
   cout << "\n\n";
   indexStopwords();
 
+  waitForEnter("Indexing stage finished! Press Enter to continue...");
+
+  showMenu();
+
   // Reset text color
   setTextColor(TextColor::WHITE);
+
+  waitForEnter("App stopped! Press Enter to exit...");
 }

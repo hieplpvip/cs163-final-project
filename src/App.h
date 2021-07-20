@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "Utils.h"
-#include "parser/TXTParser.h"
+#include "file_parsers/TXTParser.h"
 
 using namespace std;
 
@@ -15,6 +15,11 @@ class App {
 private:
   void indexFiles();
   void indexStopwords();
+
+  void showLogo();
+  void showMenu();
+
+  void processSearch();
 
 public:
   App();

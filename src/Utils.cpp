@@ -128,14 +128,14 @@ void clearScreen() {
 #endif
 }
 
-void waitForEnter() {
+void waitForEnter(std::string msg) {
   // https://www.daniweb.com/programming/software-development/threads/90228/flushing-the-input-stream
 #pragma push_macro("max")
 #undef max
   if (std::cin.rdbuf()->sungetc() != std::char_traits<char>::eof() && std::cin.get() != '\n') {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
-  std::cout << "Press Enter to continue...";
+  std::cout << msg;
   std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 #pragma pop_macro("max")
 }
