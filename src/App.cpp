@@ -6,11 +6,19 @@ App::App() {}
 App::~App() {}
 
 void App::indexFiles() {
+  setTextColor(TextColor::YELLOW);
+  cout << "Begin indexing text files...\n";
+  setTextColor(TextColor::WHITE);
+
+  double time = clock();
+
   // Read filenames
   vector<string> files;
   ifstream index_list("data/__index.txt");
   if (!index_list.is_open()) {
+    setTextColor(TextColor::RED);
     cerr << "Error: Could not open index file.\n";
+    setTextColor(TextColor::WHITE);
     exit(1);
   }
   string filename;
@@ -21,11 +29,15 @@ void App::indexFiles() {
 
   // Parse each file
   for (int fileID = 0; fileID < (int)files.size(); ++fileID) {
+    setTextColor(TextColor::BLUE);
     cout << "Indexing: " << files[fileID] << '\n';
+    setTextColor(TextColor::WHITE);
 
     vector<string> title, content;
     if (!TXTParser::parseFileToWords("data/" + files[fileID], title, content)) {
+      setTextColor(TextColor::RED);
       cerr << "Error: Could not parse file " << files[fileID] << '\n';
+      setTextColor(TextColor::WHITE);
       exit(1);
     }
     cout << "Found " << title.size() << " words in title, " << content.size() << " in content\n";
@@ -39,15 +51,25 @@ void App::indexFiles() {
     }
   }
 
-  cout << "Done indexing " << files.size() << " files!\n";
+  time = (clock() - time) / CLOCKS_PER_SEC;
+
+  setTextColor(TextColor::GREEN);
+  cout << "Done indexing " << files.size() << " files in " << fixed << setprecision(2) << time << " seconds!\n";
   cout << "trieTitle has " << Global::trieTitle.numWords << " words\n";
   cout << "trieContent has " << Global::trieContent.numWords << " words\n";
+  setTextColor(TextColor::WHITE);
 }
 
 void App::indexStopwords() {
+  setTextColor(TextColor::YELLOW);
+  cout << "Begin indexing stopwords...\n";
+  setTextColor(TextColor::WHITE);
+
   ifstream f("data/stopwords.txt");
   if (!f.is_open()) {
+    setTextColor(TextColor::RED);
     cerr << "Error: Could not open stopwords file.\n";
+    setTextColor(TextColor::WHITE);
     exit(1);
   }
 
@@ -56,14 +78,17 @@ void App::indexStopwords() {
     Global::trieStopWord.addWord(stopword, -1, -1);
   }
 
-  cout << "Done indexing stopwords!\n";
+  setTextColor(TextColor::GREEN);
+  cout << "Done indexing stopwords in " << fixed << setprecision(2) << time << " seconds!\n";
   cout << "trieStopWord has " << Global::trieStopWord.numWords << " words\n";
+  setTextColor(TextColor::WHITE);
 }
 
 void App::run() {
-  testColor();
-  //indexFiles();
-  //indexStopwords();
+  indexFiles();
+  cout << "\n\n";
+  indexStopwords();
 
+  // Reset text color
   setTextColor(TextColor::WHITE);
 }
