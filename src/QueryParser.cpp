@@ -80,7 +80,7 @@ void QueryParser::parseQueryString(const string &query, vector<vector<QueryClaus
         i = pos + 1;
 
       } else if (query[i] == '"') {
-        int pos = find_next(query, '"', i);
+        int pos = find_next(query, '"', i + 1);
         if (pos == (int)query.length()) {
           // unclosed quote. treat it as INCLUDE
           pos = find_next(query, ' ', i);
