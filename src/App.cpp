@@ -12,7 +12,9 @@
 using std::cin, std::cout, std::cerr;
 using std::string, std::vector;
 
-App::App() {}
+App::App(bool verbose) {
+  Global::verbose = verbose;
+}
 
 App::~App() {}
 
@@ -41,7 +43,7 @@ void App::indexFiles() {
   // Parse each file
   for (int fileID = 0; fileID < (int)files.size(); ++fileID) {
     setTextColor(TextColor::BLUE);
-    cout << "Indexing: " << files[fileID] << '\n';
+    cdebug << "Indexing: " << files[fileID] << '\n';
     setTextColor(TextColor::WHITE);
 
     vector<string> title, content;
@@ -51,7 +53,7 @@ void App::indexFiles() {
       setTextColor(TextColor::WHITE);
       exit(1);
     }
-    cout << "Found " << title.size() << " words in title, " << content.size() << " in content\n";
+    cdebug << "Found " << title.size() << " words in title, " << content.size() << " in content\n";
 
     for (int pos = 0; pos < (int)title.size(); ++pos) {
       Global::trieTitle.addWord(title[pos], fileID, pos);

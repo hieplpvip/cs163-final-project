@@ -1,5 +1,7 @@
 #include "Engine.h"
+#include <iostream>
 #include <vector>
+#include "Global.h"
 #include "QueryParser.h"
 
 using std::string, std::vector;
@@ -48,33 +50,42 @@ void Engine::processSearch(const std::string &query) {
 
   // show result
   // TODO
+
+  waitForEnter();
 }
 
 void Engine::processInclude(const std::string &keyword) {
-  throw("not implemented");
+  cdebug << "[Engine::processInclude] " << keyword << '\n';
+  return;
 }
 
 void Engine::processExclude(const std::string &keyword) {
-  throw("not implemented");
+  cdebug << "[Engine::processExclude] " << keyword << '\n';
+  return;
 }
 
 void Engine::processInTitle(const std::string &keyword) {
-  throw("not implemented");
+  cdebug << "[Engine::processInTitle] " << keyword << '\n';
+  return;
 }
 
 void Engine::processFileType(const std::string &keyword) {
-  throw("not implemented");
+  cdebug << "[Engine::processFileType] " << keyword << '\n';
+  return;
 }
 
 void Engine::processExactMatch(const std::string &keyword) {
   // also WILDCARD
-  throw("not implemented");
+  cdebug << "[Engine::processExactMatch] " << keyword << '\n';
+  return;
 }
 
 void Engine::processNumberRange(const std::string &keyword) {
-  throw("not implemented");
+  cdebug << "[Engine::processNumberRange] " << keyword << '\n';
+  return;
 }
 
 void Engine::processSynonym(const std::string &keyword) {
-  throw("not implemented");
+  cdebug << "[Engine::processSynonym] " << keyword << '\n';
+  return;
 }

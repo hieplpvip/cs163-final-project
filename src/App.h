@@ -12,7 +12,7 @@ private:
   void processSearch();
 
 public:
-  App();
+  App(bool verbose);
   ~App();
   void run();
 };
