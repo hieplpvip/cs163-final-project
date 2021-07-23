@@ -48,7 +48,7 @@ void Trie::addWord(const std::string& word, int fileID, int pos) {
       cur->wordID = ++numWords;
     }
 
-    cur->occurrences.push_back({fileID, pos});
+    cur->occurrences.emplace_back(fileID, pos);
   }
 }
 

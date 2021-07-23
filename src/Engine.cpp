@@ -1,12 +1,11 @@
 #include "Engine.h"
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include "Global.h"
 #include "QueryParser.h"
 
-using std::string, std::vector;
-
-void Engine::processSearch(const std::string &query) {
+void Engine::processSearch(const string &query) {
   vector<vector<QueryParser::QueryClause>> groups;
   QueryParser::parseQueryString(query, groups);
 
@@ -54,38 +53,65 @@ void Engine::processSearch(const std::string &query) {
   waitForEnter();
 }
 
-void Engine::processInclude(const std::string &keyword) {
+vector<pair<int, vector<int>>> Engine::processInclude(const string &keyword) {
   cdebug << "[Engine::processInclude] " << keyword << '\n';
-  return;
+  TrieNode *node = Global::trieContent.findWord(keyword);
+  if (node == nullptr) {
+    return {};
+  }
+
+  vector<pair<int, vector<int>>> res;
+  vector<pair<int, int>> occurrences = node->occurrences;
+  sort(occurrences.begin(), occurrences.end());
+
+  int lastFileID = occurrences[0].first;
+  res.push_back({lastFileID, {}});
+  for (auto [fileID, pos] : occurrences) {
+    if (fileID != lastFileID) {
+      lastFileID = fileID;
+      res.push_back({lastFileID, {}});
+    }
+    res.back().second.emplace_back(pos);
+  }
+
+  if (Global::verbose) {
+    for (auto &[fileID, posArr] : res) {
+      std::cout << "File " << fileID << ":";
+      for (int pos : posArr) std::cout << ' ' << pos;
+      std::cout << '\n';
+    }
+  }
+
+  return res;
 }
 
-void Engine::processExclude(const std::string &keyword) {
+vector<int> Engine::processExclude(const string &keyword) {
   cdebug << "[Engine::processExclude] " << keyword << '\n';
-  return;
+  return {};
 }
 
-void Engine::processInTitle(const std::string &keyword) {
+vector<pair<int, vector<int>>> Engine::processInTitle(const string &keyword) {
   cdebug << "[Engine::processInTitle] " << keyword << '\n';
-  return;
+  return {};
 }
 
-void Engine::processFileType(const std::string &keyword) {
+vector<int> Engine::processFileType(const string &keyword) {
   cdebug << "[Engine::processFileType] " << keyword << '\n';
-  return;
+  return {};
 }
 
-void Engine::processExactMatch(const std::string &keyword) {
+vector<pair<int, vector<int>>> Engine::processExactMatch(const string &keyword) {
   // also WILDCARD
   cdebug << "[Engine::processExactMatch] " << keyword << '\n';
-  return;
+  return {};
 }
 
-void Engine::processNumberRange(const std::string &keyword) {
+vector<pair<int, vector<int>>> Engine::processNumberRange(const string &keyword) {
   cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-  return;
+  return {};
 }
 
-void Engine::processSynonym(const std::string &keyword) {
+vector<pair<int, vector<int>>> Engine::processSynonym(const string &keyword) {
   cdebug << "[Engine::processSynonym] " << keyword << '\n';
-  return;
+  return {};
 }
