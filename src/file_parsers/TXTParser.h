@@ -1,8 +1,6 @@
 #ifndef TXTPARSER_H
 #define TXTPARSER_H
 
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 

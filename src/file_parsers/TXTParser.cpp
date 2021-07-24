@@ -1,4 +1,6 @@
 #include "TXTParser.h"
+#include <fstream>
+#include <sstream>
 
 /**
  * Parse TXT file to words.
@@ -19,17 +21,20 @@ bool TXTParser::parseFileToWords(const string &filename, vector<string> &title, 
   title.clear();
   content.clear();
 
-  // FIXME: Some files don't have title but only one line of content.
-  // For now just ignore the title and treat everything as content.
-
   string first_line, word;
-  //getline(f, first_line);
-  //stringstream ss(first_line);
-  //while (ss >> word) {
-  //  title.emplace_back(word);
-  //}
+  getline(f, first_line);
+  std::stringstream ss(first_line);
+  while (ss >> word) {
+    title.emplace_back(word);
+  }
   while (f >> word) {
     content.emplace_back(word);
+  }
+
+  // Some files don't have title but only one line of content.
+  // In this case, we treat everything as content.
+  if (content.empty()) {
+    content.swap(title);
   }
 
   return true;
