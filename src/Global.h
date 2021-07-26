@@ -9,6 +9,7 @@
 
 namespace Global {
   extern Trie trieTitle, trieContent, trieStopWord;
+  extern int numFiles, numStopWords;
   extern bool verbose;
 };
 

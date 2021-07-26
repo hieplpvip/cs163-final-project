@@ -13,6 +13,8 @@ using std::cin, std::cout, std::cerr;
 using std::string, std::vector;
 
 App::App(bool verbose) {
+  Global::numFiles = 0;
+  Global::numStopWords = 0;
   Global::verbose = verbose;
 }
 
@@ -41,7 +43,8 @@ void App::indexFiles() {
   index_list.close();
 
   // Parse each file
-  for (int fileID = 0; fileID < (int)files.size(); ++fileID) {
+  Global::numFiles = files.size();
+  for (int fileID = 0; fileID < Global::numFiles; ++fileID) {
     setTextColor(TextColor::BLUE);
     cdebug << "Indexing: " << files[fileID] << '\n';
     setTextColor(TextColor::WHITE);
@@ -88,6 +91,7 @@ void App::indexStopwords() {
 
   string stopword;
   while (f >> stopword) {
+    ++Global::numStopWords;
     Global::trieStopWord.addWord(stopword, -1, -1);
   }
 
