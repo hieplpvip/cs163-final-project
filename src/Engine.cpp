@@ -9,37 +9,58 @@ void Engine::processSearch(const string &query) {
   vector<vector<QueryParser::QueryClause>> groups;
   QueryParser::parseQueryString(query, groups);
 
+  auto mergeOccurrences = [](vector<pair<int, vector<int>>> &A, vector<pair<int, vector<int>>> &B) {
+  };
+
+  auto filterOccurrencesByFileID = [](vector<pair<int, vector<int>>> &A, vector<int> fileID, bool remove) {
+  };
+
   // process each group
   for (auto &group : groups) {
+    vector<pair<int, vector<int>>> res;
     for (auto &clause : group) {
       switch (clause.type) {
-        case QueryParser::QueryType::INCLUDE:
-          processInclude(clause.keyword);
+        case QueryParser::QueryType::INCLUDE: {
+          auto tmp = processInclude(clause.keyword);
+          mergeOccurrences(res, tmp);
           break;
+        }
 
-        case QueryParser::QueryType::EXCLUDE:
-          processExclude(clause.keyword);
+        case QueryParser::QueryType::EXCLUDE: {
+          auto tmp = processExclude(clause.keyword);
+          // filterOccurrencesByFileID(res, tmp, true);  // TODO
           break;
+        }
 
-        case QueryParser::QueryType::IN_TITLE:
-          processInTitle(clause.keyword);
+        case QueryParser::QueryType::IN_TITLE: {
+          auto tmp = processInTitle(clause.keyword);
+          //mergeOccurrences(res, tmp);  // TODO
           break;
+        }
 
-        case QueryParser::QueryType::FILETYPE:
-          processFileType(clause.keyword);
+        case QueryParser::QueryType::FILETYPE: {
+          auto tmp = processFileType(clause.keyword);
+          // filterOccurrencesByFileID(res, tmp, false);  // TODO
           break;
+        }
 
-        case QueryParser::QueryType::EXACT_MATCH:
-          processExactMatch(clause.keyword);
+        case QueryParser::QueryType::EXACT_MATCH: {
+          auto tmp = processExactMatch(clause.keyword);
+          //mergeOccurrences(res, tmp);  // TODO
           break;
+        }
 
-        case QueryParser::QueryType::NUMBER_RANGE:
-          processNumberRange(clause.keyword);
+        case QueryParser::QueryType::NUMBER_RANGE: {
+          auto tmp = processNumberRange(clause.keyword);
+          //mergeOccurrences(res, tmp);  // TODO
           break;
+        }
 
-        case QueryParser::QueryType::SYNONYM:
-          processSynonym(clause.keyword);
+        case QueryParser::QueryType::SYNONYM: {
+          auto tmp = processSynonym(clause.keyword);
+          //mergeOccurrences(res, tmp);  // TODO
           break;
+        }
       }
     }
   }
