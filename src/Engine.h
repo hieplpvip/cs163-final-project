@@ -6,6 +6,12 @@
 
 using std::pair, std::string, std::vector;
 
+struct QueryResult {
+  int fileID;
+  int score;
+  vector<int> pos;
+};
+
 namespace Engine {
   void processSearch(const string &query);
   vector<pair<int, vector<int>>> processInclude(const string &keyword);
