@@ -130,7 +130,7 @@ void Engine::displayQueryResult(const string &query, const vector<QueryResult> &
   int k = std::min(10, (int)final_res.size());
   std::cout << "Top " << k << " result(s):\n";
   for (int i = 0; i < k; ++i) {
-    std::cout << "File " << final_res[i].fileID << '\n';
+    std::cout << "File " << Global::filesList[final_res[i].fileID] << " with score " << final_res[i].score << '\n';
   }
   waitForEnter();
 }

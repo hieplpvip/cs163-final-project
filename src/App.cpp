@@ -28,7 +28,6 @@ void App::indexFiles() {
   double time = clock();
 
   // Read filenames
-  vector<string> files;
   std::ifstream index_list("data/__index.txt");
   if (!index_list.is_open()) {
     setTextColor(TextColor::RED);
@@ -38,21 +37,26 @@ void App::indexFiles() {
   }
   string filename;
   while (index_list >> filename) {
-    files.push_back(filename);
+    Global::filesList.push_back(filename);
   }
   index_list.close();
 
   // Parse each file
-  Global::numFiles = files.size();
+  Global::numFiles = Global::filesList.size();
+  Global::fileTitleWords.resize(Global::numFiles);
+  Global::fileContentWords.resize(Global::numFiles);
   for (int fileID = 0; fileID < Global::numFiles; ++fileID) {
+    const string &filename = Global::filesList[fileID];
+
     setTextColor(TextColor::BLUE);
-    cdebug << "Indexing: " << files[fileID] << '\n';
+    cdebug << "Indexing: " << filename << '\n';
     setTextColor(TextColor::WHITE);
 
-    vector<string> title, content;
-    if (!TXTParser::parseFileToWords("data/" + files[fileID], title, content)) {
+    auto &title = Global::fileTitleWords[fileID];
+    auto &content = Global::fileContentWords[fileID];
+    if (!TXTParser::parseFileToWords("data/" + filename, title, content)) {
       setTextColor(TextColor::RED);
-      cerr << "Error: Could not parse file " << files[fileID] << '\n';
+      cerr << "Error: Could not parse file " << filename << '\n';
       setTextColor(TextColor::WHITE);
       exit(1);
     }
@@ -70,7 +74,7 @@ void App::indexFiles() {
   time = (clock() - time) / CLOCKS_PER_SEC;
 
   setTextColor(TextColor::GREEN);
-  cout << "Done indexing " << files.size() << " files in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
+  cout << "Done indexing " << Global::numFiles << " files in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
   cout << "trieTitle has " << Global::trieTitle.numWords << " words\n";
   cout << "trieContent has " << Global::trieContent.numWords << " words\n";
   setTextColor(TextColor::WHITE);
