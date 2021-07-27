@@ -20,7 +20,26 @@ Trie::~Trie() {
   numWords = 0;
 }
 
-void Trie::addWord(const std::string& word, int fileID, int pos) {
+void Trie::trimWord(std::string& word) {
+  auto check = [](const char& c) -> bool {
+    return c == '.' || c == ',' || c == ';' ||
+           c == ':' || c == '?' || c == '!' ||
+           c == '"' || c == '\'' || c == ')';
+  };
+  while (!word.empty() && check(word.back())) {
+    word.pop_back();
+  }
+  while (!word.empty() && word[0] == '(') {
+    word.erase(word.begin());
+  }
+}
+
+void Trie::addWord(std::string word, int fileID, int pos) {
+  trimWord(word);
+  if (word.empty()) {
+    return;
+  }
+
   TrieNode* cur = root;
   bool not_empty_word = false;
 
@@ -52,8 +71,13 @@ void Trie::addWord(const std::string& word, int fileID, int pos) {
   }
 }
 
-TrieNode* Trie::findWord(const std::string& word) {
+TrieNode* Trie::findWord(std::string word) {
   if (root == nullptr) {
+    return nullptr;
+  }
+
+  trimWord(word);
+  if (word.empty()) {
     return nullptr;
   }
 

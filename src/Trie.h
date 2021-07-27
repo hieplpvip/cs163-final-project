@@ -20,8 +20,9 @@ struct Trie {
   Trie();
   ~Trie();
 
-  void addWord(const std::string& word, int fileID, int pos);
-  TrieNode* findWord(const std::string& word);
+  static void trimWord(std::string& word);
+  void addWord(std::string word, int fileID, int pos);
+  TrieNode* findWord(std::string word);
 };
 
 #endif
