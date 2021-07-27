@@ -140,7 +140,9 @@ void App::processSearch() {
   cin.ignore();
   getline(cin, query);
 
-  Engine::processSearch(query);
+  vector<Engine::QueryResult> res;
+  Engine::processQuery(query, res);
+  Engine::displayQueryResult(query, res);
 }
 
 void App::run() {

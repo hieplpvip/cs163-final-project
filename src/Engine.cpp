@@ -6,23 +6,42 @@
 #include "Global.h"
 #include "QueryParser.h"
 
-void Engine::processSearch(const string &query) {
-  vector<vector<QueryParser::QueryClause>> groups;
-  QueryParser::parseQueryString(query, groups);
-
-  auto mergeOccurrences = [](vector<QueryResult> &A, vector<pair<int, vector<int>>> &B) {
+void Engine::processQuery(const string &query, vector<QueryResult> &final_res) {
+  auto mergeOccurrences = [](vector<QueryResult> &A, vector<QueryResult> &B) {
     vector<QueryResult> C;
-    for (int i = 0, j = 0; i < (int)A.size() && j < (int)B.size(); ++i, ++j) {
+    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
+      if (j == (int)B.size() || (i < (int)A.size() && A[i].fileID < B[j].fileID)) {
+        C.push_back(A[i]);
+      } else if (i == (int)A.size() || (j < (int)B.size() && A[i].fileID > B[j].fileID)) {
+        C.push_back(B[j]);
+        ++j;
+      } else {
+        // A[i].fileID == B[j].fileID
+        C.push_back({A[i].fileID, A[i].score + B[j].score, {}});
+        auto &pos = C.back().pos;
+        pos.resize(A[i].pos.size() + B[j].pos.size());
+        std::merge(A[i].pos.begin(), A[i].pos.end(), B[j].pos.begin(), B[j].pos.end(), pos.begin());
+        pos.resize(std::unique(pos.begin(), pos.end()) - pos.begin());
+        ++i, ++j;
+      }
+    }
+    A.swap(C);
+  };
+
+  auto intersectOccurrences = [](vector<QueryResult> &A, vector<pair<int, vector<int>>> &B) {
+    vector<QueryResult> C;
+    for (int i = 0, j = 0; i < (int)A.size() && j < (int)B.size();) {
       if (A[i].fileID < B[j].first) {
         ++i;
       } else if (A[i].fileID > B[j].first) {
         ++j;
       } else {
-        C.push_back({A[i].fileID, A[i].score, {}});
-        C.back().score += B[j].second.size();
+        // A[i].fileID == B[j].first
+        C.push_back({A[i].fileID, A[i].score + (int)B[j].second.size(), {}});
         auto &pos = C.back().pos;
-        merge(A[i].pos.begin(), A[i].pos.end(), B[j].second.begin(), B[j].second.end(), pos.begin());
-        pos.resize(unique(pos.begin(), pos.end()) - pos.begin());
+        pos.resize(A[i].pos.size() + B[j].second.size());
+        std::merge(A[i].pos.begin(), A[i].pos.end(), B[j].second.begin(), B[j].second.end(), pos.begin());
+        pos.resize(std::unique(pos.begin(), pos.end()) - pos.begin());
         ++i, ++j;
       }
     }
@@ -40,6 +59,9 @@ void Engine::processSearch(const string &query) {
     A.swap(C);
   };
 
+  vector<vector<QueryParser::QueryClause>> groups;
+  QueryParser::parseQueryString(query, groups);
+
   // process each group
   for (auto &group : groups) {
     vector<QueryResult> res;
@@ -51,7 +73,7 @@ void Engine::processSearch(const string &query) {
       switch (clause.type) {
         case QueryParser::QueryType::INCLUDE: {
           auto tmp = processInclude(clause.keyword);
-          mergeOccurrences(res, tmp);
+          intersectOccurrences(res, tmp);
           break;
         }
 
@@ -63,7 +85,7 @@ void Engine::processSearch(const string &query) {
 
         case QueryParser::QueryType::IN_TITLE: {
           auto tmp = processInTitle(clause.keyword);
-          //mergeOccurrences(res, tmp);  // TODO
+          //intersectOccurrences(res, tmp);  // TODO
           break;
         }
 
@@ -75,31 +97,41 @@ void Engine::processSearch(const string &query) {
 
         case QueryParser::QueryType::EXACT_MATCH: {
           auto tmp = processExactMatch(clause.keyword);
-          //mergeOccurrences(res, tmp);  // TODO
+          //intersectOccurrences(res, tmp);  // TODO
           break;
         }
 
         case QueryParser::QueryType::NUMBER_RANGE: {
           auto tmp = processNumberRange(clause.keyword);
-          //mergeOccurrences(res, tmp);  // TODO
+          //intersectOccurrences(res, tmp);  // TODO
           break;
         }
 
         case QueryParser::QueryType::SYNONYM: {
           auto tmp = processSynonym(clause.keyword);
-          //mergeOccurrences(res, tmp);  // TODO
+          //intersectOccurrences(res, tmp);  // TODO
           break;
         }
       }
     }
+
+    mergeOccurrences(final_res, res);
   }
 
-  // take union
-  // TODO
+  // sort result by score
+  std::sort(final_res.begin(), final_res.end(), [](const QueryResult &a, const QueryResult &b) {
+    return a.score > b.score;
+  });
+}
 
-  // show result
-  // TODO
-
+void Engine::displayQueryResult(const string &query, const vector<QueryResult> &final_res) {
+  std::cout << "Searched for: " << query << '\n';
+  std::cout << "Found " << final_res.size() << " results\n";
+  int k = std::min(10, (int)final_res.size());
+  std::cout << "Top " << k << " result(s):\n";
+  for (int i = 0; i < k; ++i) {
+    std::cout << "File " << final_res[i].fileID << '\n';
+  }
   waitForEnter();
 }
 
