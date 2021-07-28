@@ -146,6 +146,9 @@ void App::processSearch() {
 
   vector<Engine::QueryResult> res;
   Engine::processQuery(query, res);
+
+  clearScreen();
+  showLogo();
   Engine::displayQueryResult(query, res);
 }
 

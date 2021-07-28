@@ -5,6 +5,7 @@
 #include <vector>
 #include "Global.h"
 #include "QueryParser.h"
+#include "Utils.h"
 
 void Engine::processQuery(const string &query, vector<QueryResult> &final_res) {
   auto mergeOccurrences = [](vector<QueryResult> &A, vector<QueryResult> &B) {
@@ -128,11 +129,54 @@ void Engine::displayQueryResult(const string &query, const vector<QueryResult> &
   std::cout << "Searched for: " << query << '\n';
   std::cout << "Found " << final_res.size() << " results\n";
   int k = std::min(10, (int)final_res.size());
-  std::cout << "Top " << k << " result(s):\n";
+  if (k == 0) {
+    waitForEnter();
+    return;
+  }
+
+  std::cout << "Top " << k << " result(s):\n\n";
   for (int i = 0; i < k; ++i) {
-    std::cout << "File " << Global::filesList[final_res[i].fileID] << " with score " << final_res[i].score << '\n';
+    displayFileResult(final_res[i]);
   }
   waitForEnter();
+}
+
+void Engine::displayFileResult(const QueryResult &res) {
+  setTextColor(TextColor::GREEN);
+  std::cout << "File " << Global::filesList[res.fileID] << " with score " << res.score << '\n';
+  setTextColor(TextColor::WHITE);
+
+  int L = -1, R = -1, sz = Global::fileContentWords[res.fileID].size();
+  if (sz <= 100) {
+    L = 0;
+    R = sz - 1;
+  } else {
+    int max_words = 0;
+    for (int x : res.pos) {
+      int l = std::max(0, x - 9);
+      int r = std::min(l + 99, sz);
+      int k = std::upper_bound(res.pos.begin(), res.pos.end(), r) -
+              std::lower_bound(res.pos.begin(), res.pos.end(), l);
+      if (k > max_words) {
+        max_words = k,
+        L = l;
+        R = r;
+      }
+    }
+  }
+
+  for (int i = L; i <= R; ++i) {
+    auto it = std::lower_bound(res.pos.begin(), res.pos.end(), i);
+    if (it != res.pos.end() && *it == i) {
+      setTextColor(TextColor::RED);
+      std::cout << Global::fileContentWords[res.fileID][i];
+      setTextColor(TextColor::WHITE);
+    } else {
+      std::cout << Global::fileContentWords[res.fileID][i];
+    }
+    std::cout << " \n"[i == R];
+  }
+  std::cout << '\n';
 }
 
 vector<pair<int, vector<int>>> Engine::processInclude(const string &keyword) {

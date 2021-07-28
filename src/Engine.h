@@ -15,6 +15,7 @@ namespace Engine {
 
   void processQuery(const string &query, vector<QueryResult> &final_res);
   void displayQueryResult(const string &query, const vector<QueryResult> &final_res);
+  void displayFileResult(const QueryResult &res);
 
   vector<pair<int, vector<int>>> processInclude(const string &keyword);
   vector<int> processExclude(const string &keyword);
