@@ -12,10 +12,14 @@
 using std::string, std::vector;
 
 namespace Global {
-  extern Trie trieTitle, trieContent, trieStopWord;
   extern vector<string> filesList;
   extern vector<vector<string>> fileTitleWords, fileContentWords;
   extern int numFiles, numStopWords;
+
+  extern Trie trieTitle, trieContent, trieStopWord;
+
+  extern vector<string> searchHistory;
+
   extern bool verbose;
 };
 

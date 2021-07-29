@@ -1,4 +1,5 @@
 #include "App.h"
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -119,6 +120,8 @@ void App::showMenu() {
     int cmd;
     cout << "0. Quit\n";
     cout << "1. Search\n";
+    cout << "2. Show history\n";
+    cout << "3. Clear history\n";
     cout << "Your choice: ";
     cin >> cmd;
 
@@ -126,6 +129,20 @@ void App::showMenu() {
       break;
     } else if (cmd == 1) {
       processSearch();
+    } else if (cmd == 2) {
+      if (Global::searchHistory.empty()) {
+        cout << "You haven't searched for anything!\n";
+      } else {
+        cout << "You have searched for:\n";
+        for (int i = 0; i < (int)Global::searchHistory.size(); ++i) {
+          cout << (i + 1) << ". " << Global::searchHistory[i] << '\n';
+        }
+      }
+      waitForEnter();
+    } else if (cmd == 3) {
+      Global::searchHistory.clear();
+      cout << "History cleared\n";
+      waitForEnter();
     } else {
       setTextColor(TextColor::RED);
       cout << "Error: Invalid choice\n";
@@ -144,12 +161,60 @@ void App::processSearch() {
   cin.ignore();
   getline(cin, query);
 
+  while (true) {
+    clearScreen();
+    showLogo();
+    cout << "You have entered: " << query << '\n';
+    cout << "1. Begin searching\n";
+    cout << "2. Show suggestions\n";
+
+    int cmd;
+    cin >> cmd;
+    if (cmd == 1) {
+      break;
+    } else if (cmd == 2) {
+      vector<string> suggestions;
+      for (string &s : Global::searchHistory) {
+        int pos = s.find(query);
+        if (pos != -1) {
+          suggestions.push_back(s);
+        }
+      }
+
+      if (suggestions.empty()) {
+        cout << "No suggestions!\n";
+        waitForEnter();
+      } else {
+        for (int i = 0; i < (int)suggestions.size(); ++i) {
+          cout << (i + 1) << ". " << suggestions[i] << '\n';
+        }
+
+        int choice;
+        cin >> choice;
+        if (choice < 1 || choice > (int)suggestions.size()) {
+          cout << "Invalid choice\n";
+          waitForEnter();
+        } else {
+          query = suggestions[choice - 1];
+          break;
+        }
+      }
+    } else {
+      cout << "Invalid choice\n";
+      waitForEnter();
+    }
+  }
+
   vector<Engine::QueryResult> res;
   Engine::processQuery(query, res);
 
   clearScreen();
   showLogo();
   Engine::displayQueryResult(query, res);
+
+  if (std::find(Global::searchHistory.begin(), Global::searchHistory.end(), query) == Global::searchHistory.end()) {
+    Global::searchHistory.push_back(query);
+  }
 }
 
 void App::run() {
