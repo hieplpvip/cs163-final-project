@@ -1,4 +1,22 @@
 #include "QueryParser.h"
+#include <sstream>
+#include "Global.h"
+
+void QueryParser::clearStopWords(string &query) {
+  std::stringstream ss(query);
+  string cleared = "", word;
+  while (ss >> word) {
+    if (Global::trieStopWord.findWord(word) == nullptr) {
+      cleared += word;
+      cleared += " ";
+    }
+  }
+  if (!cleared.empty()) {
+    // remove trailing whitespace
+    cleared.pop_back();
+  }
+  query.swap(cleared);
+}
 
 void QueryParser::parseQueryString(const string &query, vector<vector<QueryClause>> &groups) {
   groups.clear();
@@ -27,7 +45,9 @@ void QueryParser::parseQueryString(const string &query, vector<vector<QueryClaus
   };
 
   // now parse each group
-  for (const string &query : raw_groups) {
+  for (string &query : raw_groups) {
+    clearStopWords(query);
+
     vector<QueryClause> clauses;
 
     for (int i = 0; i < (int)query.size();) {

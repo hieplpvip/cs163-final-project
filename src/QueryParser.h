@@ -22,6 +22,7 @@ namespace QueryParser {
     QueryType type;
   };
 
+  void clearStopWords(string &query);
   void parseQueryString(const string &query, vector<vector<QueryClause>> &groups);
   bool isNumberRange(const string &keyword);
 };
