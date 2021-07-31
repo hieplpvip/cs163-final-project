@@ -149,12 +149,12 @@ void Engine::displayFileResult(const QueryResult &res) {
   int L = -1, R = -1, sz = Global::fileContentWords[res.fileID].size();
   if (sz <= 100) {
     L = 0;
-    R = sz;
+    R = sz - 1;
   } else {
     int max_words = 0;
     for (int x : res.pos) {
       int l = std::max(0, x - 9);
-      int r = std::min(l + 99, sz);
+      int r = std::min(l + 99, sz - 1);
       int k = std::upper_bound(res.pos.begin(), res.pos.end(), r) -
               std::lower_bound(res.pos.begin(), res.pos.end(), l);
       if (k > max_words) {
@@ -172,7 +172,6 @@ void Engine::displayFileResult(const QueryResult &res) {
       std::cout << Global::fileContentWords[res.fileID][i];
       setTextColor(TextColor::WHITE);
     } else {
-        if(i!=sz)
       std::cout << Global::fileContentWords[res.fileID][i];
     }
     std::cout << " \n"[i == R];
