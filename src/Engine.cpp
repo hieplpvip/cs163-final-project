@@ -165,13 +165,14 @@ void Engine::displayFileResult(const QueryResult &res) {
     }
   }
 
-  for (int i = L; i < R; ++i) {
+  for (int i = L; i <= R; ++i) {
     auto it = std::lower_bound(res.pos.begin(), res.pos.end(), i);
     if (it != res.pos.end() && *it == i) {
       setTextColor(TextColor::RED);
       std::cout << Global::fileContentWords[res.fileID][i];
       setTextColor(TextColor::WHITE);
     } else {
+        if(i!=sz)
       std::cout << Global::fileContentWords[res.fileID][i];
     }
     std::cout << " \n"[i == R];
