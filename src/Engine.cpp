@@ -289,14 +289,15 @@ vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
 		std::cout << res[i] << std::endl;
 	vector<pair<int, vector<int>>> result;
 	vector<pair<int, vector<int>>> temp;
+	
 	for (int i = 0; i < res.size(); i++) {
 		if (Engine::processInclude(res[i]) != std::vector<pair<int,vector<int>>>())
 		vector<pair<int, vector<int>>> temp = Engine::processInclude(res[i]);
 		result.insert(result.end(), temp.begin(), temp.end());
 	}
-	//when you test with keyword is ~Debate, it will crash when i get to 11 in the loop above.
-	// It means that when you put the word "ventilate" into the Engine::processInclude(), it will crash
-	// I've tried to fix but I don't figure out bugs.
-	// Maybe the bug appears when you return {}, I'm not sure 
+	//when you test with keyword that is "~Debate", the program will crash when i get to 11 in the loop above.
+	// It means that when you put the word "ventilate" into Engine::processInclude(), the program will crash
+	// I've tried to fix but I can not figure out bugs.
+	// Maybe the bugs appears when you return {}, I'm not sure 
 	return result;
 }
