@@ -264,9 +264,6 @@ vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
 	vector<string> res;
 	res.push_back(keyword);
 	vector<pair<int, int>> occurrences = node->occurrences;
-	std::sort(occurrences.begin(), occurrences.end(), [](const pair<int, int>& a, const pair<int, int>& b){
-		return (a.second < b.second);
-	});
 	string str;
 	for (auto [fileID, pos] : occurrences) {
 		fin.seekg(pos-keyword.size()-5,fin.beg);
