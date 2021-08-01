@@ -269,7 +269,6 @@ vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
 	});
 	string str;
 	for (auto [fileID, pos] : occurrences) {
-		// try to test... it must output the string containing the keyword... but it doesn't -> dont know why.T.T
 		fin.seekg(pos-keyword.size()-5,fin.beg);
 		fin >> str;
 		std::cout << pos << std::endl;
