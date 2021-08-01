@@ -80,6 +80,32 @@ void App::indexFiles() {
   cout << "trieContent has " << Global::trieContent.numWords << " words\n";
   setTextColor(TextColor::WHITE);
 }
+//this is to insert synonym into tree
+void App::indexSynwords() {
+    setTextColor(TextColor::YELLOW);
+    cout << "Begin indexing Synonyms...\n";
+    setTextColor(TextColor::WHITE);
+
+    std::ifstream f("data/testsynonym.txt");
+    if (!f.is_open()) {
+        setTextColor(TextColor::RED);
+        cerr << "Error: Could not open stopwords file.\n";
+        setTextColor(TextColor::WHITE);
+        exit(1);
+    }
+    
+    string synonym;
+    while (f >> synonym)
+    {
+        //the position of the added word is the current position of the file pointer.
+        Global::trieSynWord.addWord(synonym, -1,f.tellg());
+        Global::numSynWords++;
+    }
+    setTextColor(TextColor::GREEN);
+    cout << "Done indexing synnonyms in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
+    cout << "trieStopWord has " << Global::trieSynWord.numWords << " words\n";
+    setTextColor(TextColor::WHITE);
+}
 
 void App::indexStopwords() {
   setTextColor(TextColor::YELLOW);
@@ -207,7 +233,6 @@ void App::processSearch() {
 
   vector<Engine::QueryResult> res;
   Engine::processQuery(query, res);
-  clearScreen();
   showLogo();
   Engine::displayQueryResult(query, res);
 
@@ -218,9 +243,9 @@ void App::processSearch() {
 
 void App::run() {
   clearScreen();
-
   indexFiles();
   cout << "\n\n";
+  indexSynwords();
   indexStopwords();
 
   waitForEnter("Indexing stage finished! Press Enter to continue...");

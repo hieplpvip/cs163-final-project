@@ -5,7 +5,7 @@ class App {
 private:
   void indexFiles();
   void indexStopwords();
-
+  void indexSynwords();
   void showLogo();
   void showMenu();
 
