@@ -96,5 +96,5 @@ TrieNode* Trie::findWord(std::string word) {
     }
   }
 
-  return not_empty_word ? cur : nullptr;
+  return (not_empty_word && cur->isWord) ? cur : nullptr;
 }
