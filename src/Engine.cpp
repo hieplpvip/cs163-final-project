@@ -68,14 +68,12 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 
 	vector<vector<QueryParser::QueryClause>> groups;
 	QueryParser::parseQueryString(query, groups);
-
 	// process each group
 	for (auto& group : groups) {
 		vector<QueryResult> res;
 		for (int i = 0; i < Global::numFiles; ++i) {
 			res.push_back({ i, 0, {} });
 		}
-
 		for (auto& clause : group) {
 			switch (clause.type) {
 			case QueryParser::QueryType::INCLUDE: {
@@ -115,9 +113,10 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 			}
 
 			case QueryParser::QueryType::SYNONYM: {
-				auto tmp = processSynonym(clause.keyword);
-				intersectOccurrences(res, tmp);  
-				break;
+				auto tmp= processSynonym(clause.keyword);
+				for(auto& temp: tmp)
+					intersectOccurrences(res, temp);
+				break;	
 			}
 			}
 		}
@@ -250,7 +249,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 
 vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
 	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-
+	return {};
 	// Extract number range: x is first number, y is second number
 	int i = 1;
 	int posX = 1;
@@ -264,11 +263,11 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
 	// Process number range
 }
 
-vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
+vector<vector<pair<int, vector<int>>>> Engine:: processSynonym(const string& keyword){
 	cdebug << "[Engine::processSynonym] " << keyword << '\n';
 	TrieNode* node = Global::trieSynWord.findWord(keyword);
 	if(node==nullptr)
-	return {};
+		return {};
 	std::ifstream fin("data/testsynonym.txt");
 	if (!fin.is_open())
 		return {};
@@ -279,8 +278,6 @@ vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
 	for (auto [fileID, pos] : occurrences) {
 		fin.seekg(pos-keyword.size()-5,fin.beg);
 		fin >> str;
-		std::cout << pos << std::endl;
-		std::cout << "The str is: " << str << std::endl;
 		if (str == "KEY:") {
 			getline(fin, str);
 			getline(fin, str);
@@ -292,19 +289,12 @@ vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
 		}
 	}
 	fin.close();
+	vector<vector<pair<int, vector<int>>>> result;
 	for (int i = 0; i < res.size(); i++)
-		std::cout << res[i] << std::endl;
-	vector<pair<int, vector<int>>> result;
-	vector<pair<int, vector<int>>> temp;
-	
-	for (int i = 0; i < res.size(); i++) {
-		if (Engine::processInclude(res[i]) != std::vector<pair<int,vector<int>>>())
-		vector<pair<int, vector<int>>> temp = Engine::processInclude(res[i]);
-		result.insert(result.end(), temp.begin(), temp.end());
+	{
+		vector<pair<int, vector<int>>> temp;
+		temp = Engine::processInclude(res[i]);
+		result.push_back(temp);
 	}
-	//when you test with keyword that is "~Debate", the program will crash when i get to 11 in the loop above.
-	// It means that when you put the word "ventilate" into Engine::processInclude(), the program will crash
-	// I've tried to fix but I can not figure out bugs.
-	// Maybe the bugs appears when you return {}, I'm not sure 
 	return result;
 }
