@@ -250,7 +250,18 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 
 vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
 	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-	return {};
+
+	// Extract number range: x is first number, y is second number
+	int i = 1;
+	int posX = 1;
+	std::string x, y;
+	while (posX < keyword.length() && keyword[posX] != '.')
+		posX++;
+	x = keyword.substr(i, posX - 1);
+	int posY = posX + 2;
+	y = keyword.substr(posY, keyword.length() - 1 - posY);
+
+	// Process number range
 }
 
 vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
