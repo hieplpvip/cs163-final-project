@@ -24,6 +24,7 @@ namespace Engine {
   vector<pair<int, vector<int>>> processExactMatch(const string &keyword);
   vector<pair<int, vector<int>>> processNumberRange(const string &keyword);
   vector<vector<pair<int, vector<int>>>> processSynonym(const string &keyword);
+  void Engine::extractNumRange(const string keyword, float& num1, float& num2);
 };
 
 #endif

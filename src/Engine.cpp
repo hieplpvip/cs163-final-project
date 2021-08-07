@@ -247,13 +247,12 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 	return {};
 }
 
-vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
-	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-
+void Engine::extractNumRange(const string keyword, float& num1, float& num2)
+{
 	// Extract number range: x is first number, y is second number
 	std::string x, y;
 	int i;
-	for (i=1; i < keyword.length(); i++)
+	for (i = 1; i < keyword.length(); i++)
 	{
 		if (keyword[i] == '.' && keyword[i + 1] == '.')
 			break;
@@ -261,6 +260,16 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
 	}
 	int posY = i + 2;
 	y = keyword.substr(posY);
+
+	float num1, num2;
+	num1 = std::stof(x);
+	num2 = std::stof(y);
+}
+
+vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
+	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
+
+	
 
 	// Process number range
 	return {};
