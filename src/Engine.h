@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "Trie.h"
 
 using std::pair, std::string, std::vector;
 
@@ -17,6 +18,7 @@ namespace Engine {
   void displayQueryResult(const string &query, const vector<QueryResult> &final_res);
   void displayFileResult(const QueryResult &res);
   void extractNumRange(const string keyword, float& num1, float& num2);
+  void findNumInRange(TrieNode* root, std::string number, float num1, float num2);
 
   vector<pair<int, vector<int>>> processInclude(const string &keyword);
   vector<int> processExclude(const string &keyword);

@@ -265,13 +265,38 @@ void Engine::extractNumRange(const string keyword, float& num1, float& num2)
 	num2 = std::stof(y);
 }
 
+void Engine::findNumInRange(TrieNode* root, std::string number, float num1, float num2)
+{
+	vector<pair<int, vector<int>>> result;
+	if (root->isWord)
+	{
+		float num = std::stof(number);
+		if (num >= num1 && num <= num2)
+		{
+			result = Engine::processInclude(number);
+		}
+	}
 
+	for (int i = 0; i <= 36; i++)
+	{
+		if (i == 10)
+		{
+			i += 26;
+			continue;
+		}
+		if (root->children[i])
+		{
+			char apnd;
+			if (i != 36) apnd = i + '0';
+			else apnd = '.';
+			findNumInRange(root->children[i], number + apnd, num1, num2);
+		}
+	}
+}
 
 vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) 
 {
 	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-
-
 
 	return {};
 }
