@@ -261,17 +261,18 @@ void Engine::extractNumRange(const string keyword, float& num1, float& num2)
 	int posY = i + 2;
 	y = keyword.substr(posY);
 
-	float num1, num2;
 	num1 = std::stof(x);
 	num2 = std::stof(y);
 }
 
-vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
+
+
+vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) 
+{
 	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
 
-	
 
-	// Process number range
+
 	return {};
 }
 

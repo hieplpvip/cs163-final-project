@@ -16,6 +16,7 @@ namespace Engine {
   void processQuery(const string &query, vector<QueryResult> &final_res);
   void displayQueryResult(const string &query, const vector<QueryResult> &final_res);
   void displayFileResult(const QueryResult &res);
+  void extractNumRange(const string keyword, float& num1, float& num2);
 
   vector<pair<int, vector<int>>> processInclude(const string &keyword);
   vector<int> processExclude(const string &keyword);
@@ -24,7 +25,6 @@ namespace Engine {
   vector<pair<int, vector<int>>> processExactMatch(const string &keyword);
   vector<pair<int, vector<int>>> processNumberRange(const string &keyword);
   vector<vector<pair<int, vector<int>>>> processSynonym(const string &keyword);
-  void Engine::extractNumRange(const string keyword, float& num1, float& num2);
 };
 
 #endif
