@@ -108,7 +108,8 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 
 			case QueryParser::QueryType::NUMBER_RANGE: {
 				auto tmp = processNumberRange(clause.keyword);
-				//intersectOccurrences(res, tmp);
+				for (auto& temp : tmp)
+					intersectOccurrences(res, temp);
 				break;
 			}
 
@@ -247,7 +248,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 	return {};
 }
 
-void Engine::extractNumRange(const string keyword, float& num1, float& num2)
+void Engine::extractNumRange(const string keyword, float& num1, float& num2, vector<string>&res)
 {
 	// Extract number range: x is first number, y is second number
 	std::string x, y;
@@ -260,20 +261,20 @@ void Engine::extractNumRange(const string keyword, float& num1, float& num2)
 	}
 	int posY = i + 2;
 	y = keyword.substr(posY);
-
+	res.push_back('$'+x);
+	res.push_back('$'+y);
 	num1 = std::stof(x);
 	num2 = std::stof(y);
 }
 
-void Engine::findNumInRange(TrieNode* root, const string &keyword, std::string number, float num1, float num2, vector<pair<int, vector<int>>>& result)
+void Engine::findNumInRange(TrieNode* root, std::string number, float &num1, float &num2, vector<string>& res)
 {
-
 	if (root->isWord)
 	{
 		float num = std::stof(number);
 		if (num >= num1 && num <= num2)
 		{
-			///
+			res.push_back('$'+number);
 		}
 	}
 
@@ -281,30 +282,38 @@ void Engine::findNumInRange(TrieNode* root, const string &keyword, std::string n
 	{
 		if (i == 10)
 		{
-			i += 26;
+			i += 25;
 			continue;
 		}
 		if (root->children[i])
 		{
 			char apnd;
+			if (i == 35) continue;
 			if (i != 36) apnd = i + '0';
 			else apnd = '.';
-			findNumInRange(root->children[i], keyword, number + apnd, num1, num2, result);
+			findNumInRange(root->children[i], number + apnd, num1, num2, res);
 		}
 	}
 }
 
-vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) 
+
+vector<vector<pair<int, vector<int>>>> Engine::processNumberRange(const string& keyword) 
 {
-	cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-	TrieNode *root = Global::trieContent.root;
-	float num1, num2;
-	std::string number;
-	vector<pair<int, vector<int>>> result;
-	extractNumRange(keyword, num1, num2);
-	if (root->children[37])
-		findNumInRange(root->children[37], keyword, number, num1, num2, result);
-	return result;
+   cdebug << "[Engine::processNumberRange] " << keyword << '\n';
+   TrieNode*root=Global::trieContent.root;
+   vector<string> res;
+   float num1, num2;
+   std::string number;
+   extractNumRange(keyword, num1, num2, res);
+   findNumInRange(root, number, num1, num2, res);
+   vector<vector<pair<int, vector<int>>>> result;
+   for (int i = 0; i < res.size(); i++)
+   {
+	   vector<pair<int, vector<int>>> temp;
+	   temp = Engine::processInclude(res[i]);
+	   result.push_back(temp);
+   }
+   return result;
 }
 
 vector<vector<pair<int, vector<int>>>> Engine:: processSynonym(const string& keyword){

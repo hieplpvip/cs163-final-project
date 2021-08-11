@@ -9,7 +9,7 @@ void cleanMemory(TrieNode* node) {
   delete node;
 }
 
-Trie::Trie() {
+Trie::Trie () {
   root = nullptr;
   numWords = 0;
 }
