@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <algorithm>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -92,8 +93,10 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
         }
 
         case QueryParser::QueryType::FILETYPE: {
-          auto tmp = processFileType(clause.keyword);
-          // filterOccurrencesByFileID(res, tmp, false);  // TODO
+          // Our data currently has only TXT files
+          // Skip this for now
+          //auto tmp = processFileType(clause.keyword);
+          //filterOccurrencesByFileID(res, tmp, false);
           break;
         }
 
@@ -105,8 +108,9 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 
         case QueryParser::QueryType::NUMBER_RANGE: {
           auto tmp = processNumberRange(clause.keyword);
-          for (auto& temp : tmp)
+          for (auto& temp : tmp) {
             intersectOccurrences(res, temp);
+          }
           break;
         }
 
@@ -195,15 +199,20 @@ void Engine::displayFileResult(const QueryResult& res) {
 
 vector<pair<int, vector<int>>> Engine::processInclude(const string& keyword) {
   cdebug << "[Engine::processInclude] " << keyword << '\n';
+
+  // Find keywork in content trie
   TrieNode* node = Global::trieContent.findWord(keyword);
   if (node == nullptr) {
+    // If not found, return empty list
     return {};
   }
 
   vector<pair<int, vector<int>>> res;
-  vector<pair<int, int>> occurrences = node->occurrences;
-  sort(occurrences.begin(), occurrences.end());
+  vector<pair<int, int>>& occurrences = node->occurrences;
 
+  // Each occurrence is a pair of file ID and position
+  // occurrences is guaranteed to be sorted
+  // We merge them by file ID
   int lastFileID = occurrences[0].first;
   res.push_back({lastFileID, {}});
   for (auto [fileID, pos] : occurrences) {
@@ -227,14 +236,25 @@ vector<pair<int, vector<int>>> Engine::processInclude(const string& keyword) {
 
 vector<int> Engine::processExclude(const string& keyword) {
   cdebug << "[Engine::processExclude] " << keyword << '\n';
+
+  // Find keywork in content trie
   TrieNode* node = Global::trieContent.findWord(keyword);
-  if (node == nullptr)
+  if (node == nullptr) {
+    // If not found, return empty list
     return {};
+  }
+
   vector<int> res;
-  res.push_back(node->occurrences[0].first);
-  for (auto i : node->occurrences)
-    if (i.first != res.back())
-      res.push_back(i.first);
+  vector<pair<int, int>>& occurrences = node->occurrences;
+
+  // occurrences is guaranteed to be sorted
+  res.push_back(occurrences[0].first);
+  for (auto p : occurrences) {
+    if (p.first != res.back()) {
+      res.push_back(p.first);
+    }
+  }
+
   return res;
 }
 
@@ -254,7 +274,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
   return {};
 }
 
-void Engine::extractNumRange(const string keyword, float& num1, float& num2, vector<string>& res) {
+void Engine::extractNumRange(const string& keyword, float& num1, float& num2, vector<string>& res) {
   // Extract number range: x is first number, y is second number
   std::string x, y;
   int i;
@@ -271,7 +291,7 @@ void Engine::extractNumRange(const string keyword, float& num1, float& num2, vec
   num2 = std::stof(y);
 }
 
-void Engine::findNumInRange(TrieNode* root, std::string number, float& num1, float& num2, vector<string>& res) {
+void Engine::findNumInRange(TrieNode* root, const string& number, float& num1, float& num2, vector<string>& res) {
   if (root->isWord) {
     float num = std::stof(number);
     if (num >= num1 && num <= num2) {
@@ -285,12 +305,8 @@ void Engine::findNumInRange(TrieNode* root, std::string number, float& num1, flo
       continue;
     }
     if (root->children[i]) {
-      char apnd;
       if (i == 35) continue;
-      if (i != 36)
-        apnd = i + '0';
-      else
-        apnd = '.';
+      char apnd = (i != 36) ? (i + '0') : '.';
       findNumInRange(root->children[i], number + apnd, num1, num2, res);
     }
   }
@@ -298,33 +314,45 @@ void Engine::findNumInRange(TrieNode* root, std::string number, float& num1, flo
 
 vector<vector<pair<int, vector<int>>>> Engine::processNumberRange(const string& keyword) {
   cdebug << "[Engine::processNumberRange] " << keyword << '\n';
+
   TrieNode* root = Global::trieContent.root;
+
   vector<string> res;
+  vector<vector<pair<int, vector<int>>>> result;
   float num1, num2;
-  std::string number;
+  string number;
+
   extractNumRange(keyword, num1, num2, res);
   findNumInRange(root, number, num1, num2, res);
-  vector<vector<pair<int, vector<int>>>> result;
   for (int i = 0; i < res.size(); i++) {
     vector<pair<int, vector<int>>> temp;
     temp = Engine::processInclude(res[i]);
     result.push_back(temp);
   }
+
   return result;
 }
 
 void Engine::processSynonym(const string& keyword, vector<vector<QueryParser::QueryClause>>& groups) {
   cdebug << "[Engine::processSynonym] " << keyword << '\n';
+
+  // Find keywork in synonym trie
   TrieNode* node = Global::trieSynWord.findWord(keyword);
-  if (node == nullptr)
+  if (node == nullptr) {
+    // If not found, return
     return;
+  }
+
   std::ifstream fin("data/testsynonym.txt");
-  if (!fin.is_open())
+  if (!fin.is_open()) {
     return;
-  vector<string> res;
-  res.push_back(keyword);
+  }
+
   vector<pair<int, int>> occurrences = node->occurrences;
+  vector<string> res;
   string str;
+  res.push_back(keyword);
+
   for (auto [fileID, pos] : occurrences) {
     fin.seekg(pos - keyword.size() - 5, fin.beg);
     fin >> str;
@@ -333,12 +361,14 @@ void Engine::processSynonym(const string& keyword, vector<vector<QueryParser::Qu
       getline(fin, str);
       std::stringstream ss(str);
       ss >> str;
-      while (ss >> str)
+      while (ss >> str) {
         res.push_back(str);
+      }
       break;
     }
   }
   fin.close();
+
   for (int i = 1; i < res.size(); i++) {
     vector<QueryParser::QueryClause> temp;
     QueryParser::QueryClause ele;
@@ -350,5 +380,4 @@ void Engine::processSynonym(const string& keyword, vector<vector<QueryParser::Qu
     temp.push_back(ele);
     groups.push_back(temp);
   }
-  return;
 }
