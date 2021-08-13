@@ -14,9 +14,9 @@ using std::string, std::vector;
 namespace Global {
   extern vector<string> filesList;
   extern vector<vector<string>> fileTitleWords, fileContentWords;
-  extern int numFiles, numStopWords,numSynWords;
+  extern int numFiles, numStopWords, numSynWords;
 
-  extern Trie trieTitle, trieContent, trieStopWord,trieSynWord;
+  extern Trie trieTitle, trieContent, trieStopWord, trieSynWord;
 
   extern vector<string> searchHistory;
 
