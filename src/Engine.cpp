@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <tuple>
 #include <unordered_set>
 #include <vector>
 #include "Global.h"
@@ -102,7 +103,7 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 
         case QueryParser::QueryType::EXACT_MATCH: {
           auto tmp = processExactMatch(clause.keyword);
-          //intersectOccurrences(res, tmp);  // TODO
+          intersectOccurrences(res, tmp);
           break;
         }
 
@@ -286,10 +287,104 @@ vector<int> Engine::processFileType(const string& keyword) {
   return {};
 }
 
-vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) {
-  // also WILDCARD
-  cdebug << "[Engine::processExactMatch] " << keyword << '\n';
-  return {};
+// also handle WILDCARD
+vector<pair<int, vector<int>>> Engine::processExactMatch(const string& _keyword) {
+  cdebug << "[Engine::processExactMatch] " << _keyword << '\n';
+
+  // Remove double quotes
+  assert(_keyword.size() > 2 && _keyword[0] == '"' && _keyword.back() == '"');
+  string keyword = _keyword.substr(1, (int)_keyword.size() - 2);
+
+  // Split into words
+  std::stringstream ss(keyword);
+  vector<pair<string, int>> words;
+  string word;
+  int numTokens = 0;  // number of words that are not asterisk '*'
+  int numWords = 0;
+  while (ss >> word) {
+    words.emplace_back(word, (word.length() == 1 && word[0] == '*') ? -1 : numTokens++);
+    ++numWords;
+  }
+
+  assert(numTokens > 0);  // FIXME: what if there are no tokens
+
+  // Find occurrences of each token
+  vector<std::tuple<int, int, int>> occurrences;  // <fileID, pos, tokenID>
+  for (auto& [token, tokenID] : words) {
+    // skip asterisk
+    if (tokenID == -1) continue;
+
+    // Find token in content trie
+    TrieNode* node = Global::trieContent.findWord(token);
+    if (node == nullptr) {
+      // If not found, return empty list
+      return {};
+    }
+
+    for (auto& [fileID, pos] : node->occurrences) {
+      occurrences.emplace_back(fileID, pos, tokenID);
+    }
+  }
+
+  sort(occurrences.begin(), occurrences.end());
+
+  vector<int> kmp_input;
+  vector<std::tuple<int, int, int>> all;  // <fileID, pos, tokenID>
+
+  for (auto& [token, tokenID] : words) {
+    kmp_input.emplace_back(tokenID);
+  }
+  kmp_input.emplace_back(-2);
+  int lastFileID = -1, lastPos = -1;
+  bool first = true;
+  for (auto& [fileID, pos, tokenID] : occurrences) {
+    if ((fileID != lastFileID || (pos != lastPos + 1)) && !first) {
+      kmp_input.emplace_back(-3);
+      all.emplace_back(-1, -1, -3);
+    }
+    kmp_input.emplace_back(tokenID);
+    all.emplace_back(fileID, pos, tokenID);
+
+    lastFileID = fileID;
+    lastPos = pos;
+    first = false;
+  }
+
+  int k = kmp_input.size();
+  vector<int> kmp_output(k);
+
+  for (int i = 1, j = 0; i < k; ++i) {
+    while (j > 0 && kmp_input[i] != -1 && kmp_input[j] != -1 && kmp_input[i] != kmp_input[j]) {
+      j = kmp_output[j];
+    }
+    if (kmp_input[i] == kmp_input[j]) {
+      ++j;
+    }
+    kmp_output[i] = j;
+  }
+
+  lastFileID = -1;
+  vector<pair<int, vector<int>>> res;
+  for (int i = numWords + 1; i < k; ++i) {
+    if (kmp_output[i] == numWords) {
+      // Found a match
+      auto fileID = std::get<0>(all[i]);
+      if (fileID != lastFileID) {
+        lastFileID = fileID;
+        res.push_back({fileID, {}});
+      }
+
+      for (int j = i - numWords + 1; j <= i; ++j) {
+        res.back().second.emplace_back(std::get<1>(all[j]));
+      }
+    }
+  }
+
+  for (auto& p : res) {
+    sort(p.second.begin(), p.second.end());
+  }
+
+  return res;
 }
 
 vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
