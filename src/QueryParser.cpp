@@ -135,20 +135,21 @@ bool QueryParser::isNumberRange(const string &keyword) {
 
   int i = 1, lenX = 0, lenY = 0;
 
-  // check "X."
-  while (i < (int)keyword.length() && keyword[i] != '.') {
-    if (keyword[i] < '0' || keyword[i] > '9') return false;
+  // check "X.."
+  while (i + 1 < (int)keyword.length() && (keyword[i] != '.' || keyword[i + 1] != '.')) {
+    if ((keyword[i] < '0' || keyword[i] > '9') && keyword[i] != '.') return false;
     ++lenX;
     ++i;
   }
 
-  // check ".$"
-  if (i + 2 >= (int)keyword.length() || keyword[i + 1] != '.' || keyword[i + 2] != '$') return false;
+  // check "$"
+  i += 2;
+  if (i >= (int)keyword.length() || keyword[i] != '$') return false;
 
   // check "Y"
-  i += 3;
+  i += 1;
   while (i < (int)keyword.length()) {
-    if (keyword[i] < '0' || keyword[i] > '9') return false;
+    if ((keyword[i] < '0' || keyword[i] > '9') && keyword[i] != '.') return false;
     ++lenY;
     ++i;
   }

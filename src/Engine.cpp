@@ -275,18 +275,18 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 }
 
 void Engine::extractNumRange(const string& keyword, float& num1, float& num2, vector<string>& res) {
-  // Extract number range: x is first number, y is second number
-  std::string x, y;
-  int i;
-  for (i = 1; i < keyword.length(); i++) {
-    if (keyword[i] == '.' && keyword[i + 1] == '.')
+  // Find the position of '..'
+  int pos = -1;
+  for (int i = 0; i + 1 < keyword.length(); i++) {
+    if (keyword[i] == '.' && keyword[i + 1] == '.') {
+      pos = i;
       break;
-    x += keyword[i];
+    }
   }
-  int posY = i + 2;
-  y = keyword.substr(posY);
-  res.push_back('$' + x);
-  res.push_back('$' + y);
+  assert(pos != -1);
+
+  // Extract and convert to floats
+  string x = keyword.substr(1, pos - 1), y = keyword.substr(pos + 3);  // skip $
   num1 = std::stof(x);
   num2 = std::stof(y);
 }
