@@ -14,11 +14,13 @@ using std::string, std::vector;
 namespace Global {
   extern vector<string> filesList;
   extern vector<vector<string>> fileTitleWords, fileContentWords;
-  extern int numFiles, numStopWords, numSynWords;
+  extern int numFiles, numStopWords, numSynGroups;
 
-  extern Trie trieTitle, trieContent, trieStopWord, trieSynWord;
+  extern Trie trieTitle, trieContent, trieStopWord, trieSynonym;
 
   extern vector<string> searchHistory;
+
+  extern vector<vector<string>> synGroups;
 
   extern bool verbose;
 };

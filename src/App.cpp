@@ -1,5 +1,6 @@
 #include "App.h"
 #include <algorithm>
+#include <cassert>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -87,23 +88,30 @@ void App::indexSynwords() {
   cout << "Begin indexing Synonyms...\n";
   setTextColor(TextColor::WHITE);
 
-  std::ifstream f("data/testsynonym.txt");
+  std::ifstream f("synonyms/final_synonyms.txt");
   if (!f.is_open()) {
     setTextColor(TextColor::RED);
-    cerr << "Error: Could not open stopwords file.\n";
+    cerr << "Error: Could not open synonym file.\n";
     setTextColor(TextColor::WHITE);
     exit(1);
   }
 
-  string synonym;
-  while (f >> synonym) {
-    //the position of the added word is the current position of the file pointer.
-    Global::trieSynWord.addWord(synonym, -1, f.tellg());
-    Global::numSynWords++;
+  string line, word;
+  while (getline(f, line)) {
+    ++Global::numSynGroups;
+    Global::synGroups.push_back({});
+
+    std::stringstream ss(line);
+    while (ss >> word) {
+      assert(Global::trieSynonym.findWord(word) == nullptr);
+      Global::trieSynonym.addWord(word, Global::numSynGroups - 1, -1);
+      Global::synGroups.back().push_back(word);
+    }
   }
+
   setTextColor(TextColor::GREEN);
   cout << "Done indexing synonyms in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
-  cout << "trieStopWord has " << Global::trieSynWord.numWords << " words\n";
+  cout << "trieSynonym has " << Global::trieSynonym.numWords << " words\n";
   setTextColor(TextColor::WHITE);
 }
 

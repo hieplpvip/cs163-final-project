@@ -358,48 +358,12 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
 void Engine::processSynonym(const string& keyword, vector<vector<QueryParser::QueryClause>>& groups) {
   cdebug << "[Engine::processSynonym] " << keyword << '\n';
 
-  // Find keywork in synonym trie
-  TrieNode* node = Global::trieSynWord.findWord(keyword);
+  // Find keyword in synonym trie
+  TrieNode* node = Global::trieSynonym.findWord(keyword);
   if (node == nullptr) {
     // If not found, return
     return;
   }
 
-  std::ifstream fin("data/testsynonym.txt");
-  if (!fin.is_open()) {
-    return;
-  }
-
-  vector<pair<int, int>> occurrences = node->occurrences;
-  vector<string> res;
-  string str;
-  res.push_back(keyword);
-
-  for (auto [fileID, pos] : occurrences) {
-    fin.seekg(pos - keyword.size() - 5, fin.beg);
-    fin >> str;
-    if (str == "KEY:") {
-      getline(fin, str);
-      getline(fin, str);
-      std::stringstream ss(str);
-      ss >> str;
-      while (ss >> str) {
-        res.push_back(str);
-      }
-      break;
-    }
-  }
-  fin.close();
-
-  for (int i = 1; i < res.size(); i++) {
-    vector<QueryParser::QueryClause> temp;
-    QueryParser::QueryClause ele;
-    ele.keyword = keyword;
-    ele.type = QueryParser::QueryType::INCLUDE;
-    temp.push_back(ele);
-    ele.keyword = res[i];
-    ele.type = QueryParser::QueryType::INCLUDE;
-    temp.push_back(ele);
-    groups.push_back(temp);
-  }
+  // TODO
 }
