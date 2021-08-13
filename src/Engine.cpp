@@ -14,6 +14,7 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 		for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
 			if (j == (int)B.size() || (i < (int)A.size() && A[i].fileID < B[j].fileID)) {
 				C.push_back(A[i]);
+				++i;
 			}
 			else if (i == (int)A.size() || (j < (int)B.size() && A[i].fileID > B[j].fileID)) {
 				C.push_back(B[j]);
