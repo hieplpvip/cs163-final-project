@@ -256,6 +256,7 @@ vector<int> Engine::processExclude(const string& keyword) {
   return res;
 }
 
+// Oh, thank u God
 // copied and modified from processInclude
 vector<pair<int, vector<int>>> Engine::processInTitle(const string& keyword) {
   cdebug << "[Engine::processInTitle] " << keyword << '\n';
