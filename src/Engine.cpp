@@ -113,20 +113,7 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
         }
 
         case QueryParser::QueryType::SYNONYM: {
-          int finalindex = groups.size();
-          processSynonym(clause.keyword, groups);
-          for (auto iter = groups.begin() + finalindex; iter != groups.end(); iter++) {
-            vector<QueryResult> temp;
-            for (int i = 0; i < Global::numFiles; ++i) {
-              temp.push_back({i, 0, {}});
-            }
-            for (auto i : *iter) {
-              auto tmp = processInclude(i.keyword);
-              intersectOccurrences(temp, tmp);
-            }
-            mergeOccurrences(final_res, temp);
-          }
-          auto tmp = processInclude("");
+          auto tmp = processSynonym(clause.keyword);
           intersectOccurrences(res, tmp);
           break;
         }
@@ -356,15 +343,45 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
   return res;
 }
 
-void Engine::processSynonym(const string& keyword, vector<vector<QueryParser::QueryClause>>& groups) {
+vector<pair<int, vector<int>>> Engine::processSynonym(const string& keyword) {
   cdebug << "[Engine::processSynonym] " << keyword << '\n';
 
   // Find keyword in synonym trie
   TrieNode* node = Global::trieSynonym.findWord(keyword);
   if (node == nullptr) {
-    // If not found, return
-    return;
+    // If not found, fallback to processInclude
+    return processInclude(keyword);
   }
 
-  // TODO
+  vector<pair<int, vector<int>>> res;
+
+  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) {
+    vector<pair<int, vector<int>>> C;
+    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
+      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) {
+        C.push_back(A[i]);
+        ++i;
+      } else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
+        C.push_back(B[j]);
+        ++j;
+      } else {
+        // A[i].first == B[j].first
+        C.push_back({A[i].first, {}});
+        auto& pos = C.back().second;
+        pos.resize(A[i].second.size() + B[j].second.size());
+        std::merge(A[i].second.begin(), A[i].second.end(), B[j].second.begin(), B[j].second.end(), pos.begin());
+        pos.resize(std::unique(pos.begin(), pos.end()) - pos.begin());
+        ++i, ++j;
+      }
+    }
+    A.swap(C);
+  };
+
+  int groupID = node->occurrences[0].first;
+  for (const string& word : Global::synGroups[groupID]) {
+    auto tmp = processInclude(word);
+    mergeOccurrences(res, tmp);
+  }
+
+  return res;
 }

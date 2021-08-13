@@ -26,7 +26,7 @@ namespace Engine {
   vector<int> processFileType(const string &keyword);
   vector<pair<int, vector<int>>> processExactMatch(const string &keyword);
   vector<pair<int, vector<int>>> processNumberRange(const string &keyword);
-  void processSynonym(const string &keyword, vector<vector<QueryParser::QueryClause>> &groups);
+  vector<pair<int, vector<int>>> processSynonym(const string &keyword);
 };
 
 #endif
