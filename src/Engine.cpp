@@ -88,7 +88,7 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 
         case QueryParser::QueryType::IN_TITLE: {
           auto tmp = processInTitle(clause.keyword);
-          //intersectOccurrences(res, tmp);  // TODO
+          intersectOccurrences(res, tmp);
           break;
         }
 
@@ -258,9 +258,42 @@ vector<int> Engine::processExclude(const string& keyword) {
   return res;
 }
 
+// copied and modified from processInclude
 vector<pair<int, vector<int>>> Engine::processInTitle(const string& keyword) {
   cdebug << "[Engine::processInTitle] " << keyword << '\n';
-  return {};
+
+  // Find keywork in title trie
+  TrieNode* node = Global::trieTitle.findWord(keyword);
+  if (node == nullptr) {
+    // If not found, return empty list
+    return {};
+  }
+
+  vector<pair<int, vector<int>>> res;
+  vector<pair<int, int>>& occurrences = node->occurrences;
+
+  // Each occurrence is a pair of file ID and position
+  // occurrences is guaranteed to be sorted
+  // We merge them by file ID
+  int lastFileID = occurrences[0].first;
+  res.push_back({lastFileID, {}});
+  for (auto [fileID, pos] : occurrences) {
+    if (fileID != lastFileID) {
+      lastFileID = fileID;
+      res.push_back({lastFileID, {}});
+    }
+    res.back().second.emplace_back(pos);
+  }
+
+  if (Global::verbose) {
+    for (auto& [fileID, posArr] : res) {
+      std::cout << "File " << fileID << ":";
+      for (int pos : posArr) std::cout << ' ' << pos;
+      std::cout << '\n';
+    }
+  }
+
+  return res;
 }
 
 vector<int> Engine::processFileType(const string& keyword) {
