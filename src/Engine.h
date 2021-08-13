@@ -1,6 +1,6 @@
 #ifndef ENGINE_H
 #define ENGINE_H
-
+#include "QueryParser.h"
 #include <string>
 #include <vector>
 #include "Trie.h"
@@ -26,7 +26,7 @@ namespace Engine {
   vector<int> processFileType(const string &keyword);
   vector<pair<int, vector<int>>> processExactMatch(const string &keyword);
   vector<vector<pair<int, vector<int>>>> processNumberRange(const string &keyword);
-  vector<vector<pair<int, vector<int>>>> processSynonym(const string &keyword);
+  void processSynonym(const string &keyword, vector<vector<QueryParser::QueryClause>>& groups);
 };
 
 #endif

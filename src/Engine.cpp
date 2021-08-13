@@ -4,7 +4,6 @@
 #include <unordered_set>
 #include <vector>
 #include "Global.h"
-#include "QueryParser.h"
 #include "Utils.h"
 #include <fstream>
 #include <sstream>
@@ -69,6 +68,7 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 	vector<vector<QueryParser::QueryClause>> groups;
 	QueryParser::parseQueryString(query, groups);
 	// process each group
+	std::cout << "The parser is: \n";
 	for (auto& group : groups) {
 		vector<QueryResult> res;
 		for (int i = 0; i < Global::numFiles; ++i) {
@@ -114,14 +114,26 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 			}
 
 			case QueryParser::QueryType::SYNONYM: {
-				auto tmp= processSynonym(clause.keyword);
-				for(auto& temp: tmp)
-					intersectOccurrences(res, temp);
+				int finalindex = groups.size();
+				processSynonym(clause.keyword,groups);
+				for (auto iter = groups.begin() + finalindex; iter != groups.end(); iter++)
+				{
+					vector<QueryResult> temp;
+					for (int i = 0; i < Global::numFiles; ++i) {
+						temp.push_back({ i, 0, {} });
+					}
+					for (auto i : *iter) {
+					auto tmp = processInclude(i.keyword);
+						intersectOccurrences(temp, tmp);
+					}
+					mergeOccurrences(final_res, temp);
+				}
+				auto tmp = processInclude("");
+				intersectOccurrences(res, tmp);
 				break;	
 			}
 			}
 		}
-
 		mergeOccurrences(final_res, res);
 	}
 
@@ -316,14 +328,14 @@ vector<vector<pair<int, vector<int>>>> Engine::processNumberRange(const string& 
    return result;
 }
 
-vector<vector<pair<int, vector<int>>>> Engine:: processSynonym(const string& keyword){
+void Engine:: processSynonym(const string& keyword, vector<vector<QueryParser::QueryClause>>& groups){
 	cdebug << "[Engine::processSynonym] " << keyword << '\n';
 	TrieNode* node = Global::trieSynWord.findWord(keyword);
 	if(node==nullptr)
-		return {};
+		return ;
 	std::ifstream fin("data/testsynonym.txt");
 	if (!fin.is_open())
-		return {};
+		return ;
 	vector<string> res;
 	res.push_back(keyword);
 	vector<pair<int, int>> occurrences = node->occurrences;
@@ -342,12 +354,16 @@ vector<vector<pair<int, vector<int>>>> Engine:: processSynonym(const string& key
 		}
 	}
 	fin.close();
-	vector<vector<pair<int, vector<int>>>> result;
-	for (int i = 0; i < res.size(); i++)
-	{
-		vector<pair<int, vector<int>>> temp;
-		temp = Engine::processInclude(res[i]);
-		result.push_back(temp);
+	for (int i = 1; i < res.size(); i++) {
+		vector<QueryParser::QueryClause> temp;
+		QueryParser::QueryClause ele;
+		ele.keyword = keyword;
+		ele.type = QueryParser::QueryType::INCLUDE;
+		temp.push_back(ele);
+		ele.keyword = res[i];
+		ele.type = QueryParser::QueryType::INCLUDE;
+		temp.push_back(ele);
+		groups.push_back(temp);
 	}
-	return result;
+	return ;
 }
