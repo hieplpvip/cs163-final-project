@@ -128,28 +128,27 @@ void QueryParser::parseQueryString(const string &query, vector<vector<QueryClaus
 }
 
 bool QueryParser::isNumberRange(const string &keyword) {
-  // Format: "$X..$Y"
+  // Format: "$X..$Y". X and Y must be non-negative integers.
 
   // check "$"
   if (keyword.empty() || keyword[0] != '$') return false;
 
   int i = 1, lenX = 0, lenY = 0;
 
-  // check "X.."
-  while (i + 1 < (int)keyword.length() && (keyword[i] != '.' || keyword[i + 1] != '.')) {
-    if ((keyword[i] < '0' || keyword[i] > '9') && keyword[i] != '.') return false;
+  // check "X."
+  while (i < (int)keyword.length() && keyword[i] != '.') {
+    if (keyword[i] < '0' || keyword[i] > '9') return false;
     ++lenX;
     ++i;
   }
 
-  // check "$"
-  i += 2;
-  if (i >= (int)keyword.length() || keyword[i] != '$') return false;
+  // check ".$"
+  if (i + 2 >= (int)keyword.length() || keyword[i + 1] != '.' || keyword[i + 2] != '$') return false;
 
   // check "Y"
-  i += 1;
+  i += 3;
   while (i < (int)keyword.length()) {
-    if ((keyword[i] < '0' || keyword[i] > '9') && keyword[i] != '.') return false;
+    if (keyword[i] < '0' || keyword[i] > '9') return false;
     ++lenY;
     ++i;
   }

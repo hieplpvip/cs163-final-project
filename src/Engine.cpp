@@ -108,9 +108,7 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 
         case QueryParser::QueryType::NUMBER_RANGE: {
           auto tmp = processNumberRange(clause.keyword);
-          for (auto& temp : tmp) {
-            intersectOccurrences(res, temp);
-          }
+          intersectOccurrences(res, tmp);
           break;
         }
 
@@ -307,7 +305,9 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
   return {};
 }
 
-void Engine::extractNumRange(const string& keyword, float& num1, float& num2, vector<string>& res) {
+vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
+  cdebug << "[Engine::processNumberRange] " << keyword << '\n';
+
   // Find the position of '..'
   int pos = -1;
   for (int i = 0; i + 1 < keyword.length(); i++) {
@@ -318,52 +318,41 @@ void Engine::extractNumRange(const string& keyword, float& num1, float& num2, ve
   }
   assert(pos != -1);
 
-  // Extract and convert to floats
+  // Extract and convert to integers
   string x = keyword.substr(1, pos - 1), y = keyword.substr(pos + 3);  // skip $
-  num1 = std::stof(x);
-  num2 = std::stof(y);
-}
+  int num1 = std::stoi(x), num2 = std::stoi(y);
+  assert(num1 >= 0 && num2 >= 0);
 
-void Engine::findNumInRange(TrieNode* root, const string& number, float& num1, float& num2, vector<string>& res) {
-  if (root->isWord) {
-    float num = std::stof(number);
-    if (num >= num1 && num <= num2) {
-      res.push_back('$' + number);
+  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) {
+    vector<pair<int, vector<int>>> C;
+    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
+      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) {
+        C.push_back(A[i]);
+        ++i;
+      } else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
+        C.push_back(B[j]);
+        ++j;
+      } else {
+        // A[i].first == B[j].first
+        C.push_back({A[i].first, {}});
+        auto& pos = C.back().second;
+        pos.resize(A[i].second.size() + B[j].second.size());
+        std::merge(A[i].second.begin(), A[i].second.end(), B[j].second.begin(), B[j].second.end(), pos.begin());
+        pos.resize(std::unique(pos.begin(), pos.end()) - pos.begin());
+        ++i, ++j;
+      }
     }
+    A.swap(C);
+  };
+
+  vector<pair<int, vector<int>>> res;
+  for (int i = num1; i <= num2; ++i) {
+    string word = "$" + std::to_string(i);
+    auto tmp = processInclude(word);
+    mergeOccurrences(res, tmp);
   }
 
-  for (int i = 0; i <= 36; i++) {
-    if (i == 10) {
-      i += 25;
-      continue;
-    }
-    if (root->children[i]) {
-      if (i == 35) continue;
-      char apnd = (i != 36) ? (i + '0') : '.';
-      findNumInRange(root->children[i], number + apnd, num1, num2, res);
-    }
-  }
-}
-
-vector<vector<pair<int, vector<int>>>> Engine::processNumberRange(const string& keyword) {
-  cdebug << "[Engine::processNumberRange] " << keyword << '\n';
-
-  TrieNode* root = Global::trieContent.root;
-
-  vector<string> res;
-  vector<vector<pair<int, vector<int>>>> result;
-  float num1, num2;
-  string number;
-
-  extractNumRange(keyword, num1, num2, res);
-  findNumInRange(root, number, num1, num2, res);
-  for (int i = 0; i < res.size(); i++) {
-    vector<pair<int, vector<int>>> temp;
-    temp = Engine::processInclude(res[i]);
-    result.push_back(temp);
-  }
-
-  return result;
+  return res;
 }
 
 void Engine::processSynonym(const string& keyword, vector<vector<QueryParser::QueryClause>>& groups) {
