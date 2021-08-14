@@ -2,22 +2,6 @@
 #include <sstream>
 #include "Global.h"
 
-void QueryParser::clearStopWords(string &query) {
-  std::stringstream ss(query);
-  string cleared = "", word;
-  while (ss >> word) {
-    if (Global::trieStopWord.findWord(word) == nullptr) {
-      cleared += word;
-      cleared += " ";
-    }
-  }
-  if (!cleared.empty()) {
-    // remove trailing whitespace
-    cleared.pop_back();
-  }
-  query.swap(cleared);
-}
-
 void QueryParser::parseQueryString(const string &query, vector<vector<QueryClause>> &groups) {
   groups.clear();
 
@@ -46,8 +30,6 @@ void QueryParser::parseQueryString(const string &query, vector<vector<QueryClaus
 
   // now parse each group
   for (string &query : raw_groups) {
-    clearStopWords(query);
-
     vector<QueryClause> clauses;
 
     for (int i = 0; i < (int)query.size();) {
@@ -116,7 +98,11 @@ void QueryParser::parseQueryString(const string &query, vector<vector<QueryClaus
       } else {
         int pos = find_next(query, ' ', i);
         string keyword = query.substr(i, pos - i);
-        clauses.push_back({keyword, isNumberRange(keyword) ? QueryType::NUMBER_RANGE : QueryType::INCLUDE});
+        if (isNumberRange(keyword)) {
+          clauses.push_back({keyword, QueryType::NUMBER_RANGE});
+        } else if (Global::trieStopWord.findWord(keyword) == nullptr) {
+          clauses.push_back({keyword, QueryType::INCLUDE});
+        }
         i = pos + 1;
       }
     }

@@ -288,12 +288,8 @@ vector<int> Engine::processFileType(const string& keyword) {
 }
 
 // also handle WILDCARD
-vector<pair<int, vector<int>>> Engine::processExactMatch(const string& _keyword) {
-  cdebug << "[Engine::processExactMatch] " << _keyword << '\n';
-
-  // Remove double quotes
-  assert(_keyword.size() > 2 && _keyword[0] == '"' && _keyword.back() == '"');
-  string keyword = _keyword.substr(1, (int)_keyword.size() - 2);
+vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) {
+  cdebug << "[Engine::processExactMatch] " << keyword << '\n';
 
   // Split into words
   std::stringstream ss(keyword);
@@ -333,20 +329,37 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& _keyword)
 
   for (auto& [token, tokenID] : words) {
     kmp_input.emplace_back(tokenID);
+    all.emplace_back(-1, -1, tokenID);
   }
   kmp_input.emplace_back(-2);
+  all.emplace_back(-1, -1, -2);
   int lastFileID = -1, lastPos = -1;
   bool first = true;
-  for (auto& [fileID, pos, tokenID] : occurrences) {
-    if ((fileID != lastFileID || (pos != lastPos + 1)) && !first) {
+  for (int i = 0; i < (int)occurrences.size(); ++i) {
+    auto& [fileID, pos, tokenID] = occurrences[i];
+    if ((fileID != lastFileID || (pos > lastPos + 2)) && !first) {
       kmp_input.emplace_back(-3);
       all.emplace_back(-1, -1, -3);
+      if (fileID != lastFileID) {
+        lastPos = -1;
+      }
+    }
+    if (pos - 1 > lastPos) {
+      kmp_input.emplace_back(-1);
+      all.emplace_back(fileID, pos - 1, -1);
     }
     kmp_input.emplace_back(tokenID);
     all.emplace_back(fileID, pos, tokenID);
+    if (i + 1 == (int)occurrences.size() || (fileID != get<0>(occurrences[i + 1]) || pos + 2 < get<1>(occurrences[i + 1]))) {
+      // FIXME: check if pos + 1 is valid
+      kmp_input.emplace_back(-1);
+      all.emplace_back(fileID, pos + 1, -1);
+      lastPos = pos + 1;
+    } else {
+      lastPos = pos;
+    }
 
     lastFileID = fileID;
-    lastPos = pos;
     first = false;
   }
 
@@ -354,7 +367,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& _keyword)
   vector<int> kmp_output(k);
 
   for (int i = 1, j = 0; i < k; ++i) {
-    while (j > 0 && kmp_input[i] != -1 && kmp_input[j] != -1 && kmp_input[i] != kmp_input[j]) {
+    while (j > 0 && kmp_input[j] != -1 && kmp_input[i] != kmp_input[j]) {
       j = kmp_output[j];
     }
     if (kmp_input[i] == kmp_input[j]) {
