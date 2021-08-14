@@ -384,8 +384,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
   vector<int> kmp_output(k);
 
   auto is_matched = [](int x, int y) {
-    if (x == -1) return y >= 0;
-    if (y == -1) return x >= 0;
+    if (y == -1) return x >= -1;
     return (x == y);
   };
 
