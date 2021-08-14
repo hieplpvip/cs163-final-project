@@ -268,16 +268,17 @@ void App::showMenu() {
           cout << (i + 1) << ". " << Global::searchHistory[i] << '\n';
         }
       }
+      cout << '\n';
       waitForEnter();
     } else if (cmd == 3) {
       Global::searchHistory.clear();
       setTextColor(TextColor::BLUE);
-      cout << "History cleared\n";
+      cout << "History cleared\n\n";
       setTextColor(TextColor::WHITE);
       waitForEnter();
     } else {
       setTextColor(TextColor::RED);
-      cout << "Error: Invalid choice\n";
+      cout << "Error: Invalid choice\n\n";
       waitForEnter();
       setTextColor(TextColor::WHITE);
     }
@@ -300,15 +301,28 @@ void App::processSearch() {
     setTextColor(TextColor::WHITE);
     cout << query << '\n';
     setTextColor(TextColor::RED);
+    cout << "0. Go back to main menu.\n";
+    setTextColor(TextColor::BLUE);
     cout << "1. Begin searching\n";
-    setTextColor(TextColor::YELLOW);
+    setTextColor(TextColor::GREEN);
     cout << "2. Show suggestions\n";
+    setTextColor(TextColor::WHITE);
 
     int cmd;
     cin >> cmd;
-    if (cmd == 1) {
+    if (cmd == 0) {
+      return;
+    } else if (cmd == 1) {
       break;
     } else if (cmd == 2) {
+      clearScreen();
+      showLogo();
+
+      setTextColor(TextColor::BLUE);
+      cout << "You have entered: ";
+      setTextColor(TextColor::WHITE);
+      cout << query << '\n';
+
       vector<string> suggestions;
       for (string &s : Global::searchHistory) {
         int pos = s.find(query);
@@ -318,9 +332,15 @@ void App::processSearch() {
       }
 
       if (suggestions.empty()) {
-        cout << "No suggestions!\n";
+        setTextColor(TextColor::RED);
+        cout << "No suggestions!\n\n";
+        setTextColor(TextColor::WHITE);
         waitForEnter();
       } else {
+        setTextColor(TextColor::GREEN);
+        cout << "Suggestions:\n";
+        setTextColor(TextColor::WHITE);
+
         for (int i = 0; i < (int)suggestions.size(); ++i) {
           cout << (i + 1) << ". " << suggestions[i] << '\n';
         }
