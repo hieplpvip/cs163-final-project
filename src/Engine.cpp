@@ -140,6 +140,7 @@ void Engine::displayQueryResult(const string& query, const vector<QueryResult>& 
     std::cout << "Found 0 results\n\n";
     setTextColor(TextColor::WHITE);
     waitForEnter();
+    return;
   }
 
   int k = std::min(10, (int)final_res.size());
