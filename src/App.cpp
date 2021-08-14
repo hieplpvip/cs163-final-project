@@ -88,24 +88,41 @@ void App::indexSynwords() {
   cout << "Begin indexing synonyms...\n";
   setTextColor(TextColor::WHITE);
 
-  std::ifstream f("synonyms/final_synonyms.txt");
+  std::ifstream f("synonyms/synonyms.txt");
   if (!f.is_open()) {
     setTextColor(TextColor::RED);
-    cerr << "Error: Could not open synonym file.\n";
+    cerr << "Error: Could not open synonyms file.\n";
     setTextColor(TextColor::WHITE);
     exit(1);
   }
 
-  string line, word;
+  string line, tmp, key = "";
   while (getline(f, line)) {
-    ++Global::numSynGroups;
-    Global::synGroups.push_back({});
+    if (line[0] == '=') {
+      key.clear();
+      continue;
+    }
 
     std::stringstream ss(line);
-    while (ss >> word) {
-      assert(Global::trieSynonym.findWord(word) == nullptr);
-      Global::trieSynonym.addWord(word, Global::numSynGroups - 1, -1);
-      Global::synGroups.back().push_back(word);
+    ss >> tmp;
+    if (tmp == "KEY:") {
+      ss >> key;
+    } else if (tmp == "SYN:") {
+      if (key.empty() || Global::trieSynonym.findWord(key) != nullptr) {
+        continue;
+      }
+
+      Global::trieSynonym.addWord(key, Global::numSynGroups++, -1);
+      Global::synGroups.push_back({});
+      Global::synGroups.back().push_back(key);
+
+      while (ss >> tmp) {
+        Global::synGroups.back().push_back(tmp);
+      }
+
+      key.clear();
+    } else if (tmp != "ANT:") {
+      assert(false);
     }
   }
 
