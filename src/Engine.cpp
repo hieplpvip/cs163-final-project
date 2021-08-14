@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <tuple>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include "Global.h"
@@ -304,12 +305,20 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 
   // Split into words
   std::stringstream ss(keyword);
+  std::unordered_map<string, int> mapTokens;
   vector<pair<string, int>> words;
   string word;
   int numTokens = 0;  // number of words that are not asterisk '*'
   int numWords = 0;
   while (ss >> word) {
-    words.emplace_back(word, (word.length() == 1 && word[0] == '*') ? -1 : numTokens++);
+    if (word.length() == 1 && word[0] == '*') {
+      words.emplace_back(word, -1);
+    } else {
+      if (!mapTokens.count(word)) {
+        mapTokens[word] = numTokens++;
+      }
+      words.emplace_back(word, mapTokens[word]);
+    }
     ++numWords;
   }
 
@@ -317,10 +326,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 
   // Find occurrences of each token
   vector<std::tuple<int, int, int>> occurrences;  // <fileID, pos, tokenID>
-  for (auto& [token, tokenID] : words) {
-    // skip asterisk
-    if (tokenID == -1) continue;
-
+  for (auto& [token, tokenID] : mapTokens) {
     // Find token in content trie
     TrieNode* node = Global::trieContent.findWord(token);
     if (node == nullptr) {
@@ -356,15 +362,15 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
       }
     }
     if (pos - 1 > lastPos) {
-      kmp_input.emplace_back(-1);
-      all.emplace_back(fileID, pos - 1, -1);
+      kmp_input.emplace_back(numTokens);
+      all.emplace_back(fileID, pos - 1, numTokens);
     }
     kmp_input.emplace_back(tokenID);
     all.emplace_back(fileID, pos, tokenID);
     if (i + 1 == (int)occurrences.size() || (fileID != get<0>(occurrences[i + 1]) || pos + 2 < get<1>(occurrences[i + 1]))) {
       // FIXME: check if pos + 1 is valid
-      kmp_input.emplace_back(-1);
-      all.emplace_back(fileID, pos + 1, -1);
+      kmp_input.emplace_back(numTokens);
+      all.emplace_back(fileID, pos + 1, numTokens);
       lastPos = pos + 1;
     } else {
       lastPos = pos;
@@ -377,11 +383,17 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
   int k = kmp_input.size();
   vector<int> kmp_output(k);
 
+  auto is_matched = [](int x, int y) {
+    if (x == -1) return y >= 0;
+    if (y == -1) return x >= 0;
+    return (x == y);
+  };
+
   for (int i = 1, j = 0; i < k; ++i) {
-    while (j > 0 && kmp_input[j] != -1 && kmp_input[i] != kmp_input[j]) {
-      j = kmp_output[j];
+    while (j > 0 && !is_matched(kmp_input[i], kmp_input[j])) {
+      j = kmp_output[j - 1];
     }
-    if (kmp_input[i] == kmp_input[j]) {
+    if (is_matched(kmp_input[i], kmp_input[j])) {
       ++j;
     }
     kmp_output[i] = j;
