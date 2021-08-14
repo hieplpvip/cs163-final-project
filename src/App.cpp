@@ -137,7 +137,7 @@ void App::indexStopwords() {
   cout << "Begin indexing stopwords...\n";
   setTextColor(TextColor::WHITE);
 
-  std::ifstream f("data/stopwords.txt");
+  std::ifstream f("stopwords/stopwords.txt");
   if (!f.is_open()) {
     setTextColor(TextColor::RED);
     cerr << "Error: Could not open stopwords file.\n";
