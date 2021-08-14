@@ -78,14 +78,14 @@ void App::indexFiles() {
   setTextColor(TextColor::GREEN);
   cout << "Done indexing " << Global::numFiles << " files in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
   cout << "trieTitle has " << Global::trieTitle.numWords << " words\n";
-  cout << "trieContent has " << Global::trieContent.numWords << " words\n";
+  cout << "trieContent has " << Global::trieContent.numWords << " words\n\n";
   setTextColor(TextColor::WHITE);
 }
 
 // insert synonyms into tree
 void App::indexSynwords() {
   setTextColor(TextColor::YELLOW);
-  cout << "Begin indexing Synonyms...\n";
+  cout << "Begin indexing synonyms...\n";
   setTextColor(TextColor::WHITE);
 
   std::ifstream f("synonyms/final_synonyms.txt");
@@ -111,7 +111,7 @@ void App::indexSynwords() {
 
   setTextColor(TextColor::GREEN);
   cout << "Done indexing synonyms in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
-  cout << "trieSynonym has " << Global::trieSynonym.numWords << " words\n";
+  cout << "trieSynonym has " << Global::trieSynonym.numWords << " words\n\n";
   setTextColor(TextColor::WHITE);
 }
 
@@ -136,13 +136,80 @@ void App::indexStopwords() {
 
   setTextColor(TextColor::GREEN);
   cout << "Done indexing stopwords in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
-  cout << "trieStopWord has " << Global::trieStopWord.numWords << " words\n";
+  cout << "trieStopWord has " << Global::trieStopWord.numWords << " words\n\n";
   setTextColor(TextColor::WHITE);
 }
 
 void App::showLogo() {
   setTextColor(TextColor::BLUE);
-  cout << "Put some fancy logo here\n";
+  cout << "   _____                       ";
+  setTextColor(TextColor::GREEN);
+  cout << "_      \n";
+
+  setTextColor(TextColor::BLUE);
+  cout << "  / ____|                     ";
+  setTextColor(TextColor::GREEN);
+  cout << "| |     \n";
+
+  setTextColor(TextColor::BLUE);
+  cout << " | |  __   ";
+  setTextColor(TextColor::RED);
+  cout << "___    ";
+  setTextColor(TextColor::YELLOW);
+  cout << "___    ";
+  setTextColor(TextColor::BLUE);
+  cout << "__ _ ";
+  setTextColor(TextColor::GREEN);
+  cout << "| |  ";
+  setTextColor(TextColor::RED);
+  cout << "___ \n";
+
+  setTextColor(TextColor::BLUE);
+  cout << " | | |_ | ";
+  setTextColor(TextColor::RED);
+  cout << "/ _ \\  ";
+  setTextColor(TextColor::YELLOW);
+  cout << "/ _ \\  ";
+  setTextColor(TextColor::BLUE);
+  cout << "/ _` |";
+  setTextColor(TextColor::GREEN);
+  cout << "| | ";
+  setTextColor(TextColor::RED);
+  cout << "/ _ \\\n";
+
+  setTextColor(TextColor::BLUE);
+  cout << " | |__| |";
+  setTextColor(TextColor::RED);
+  cout << "| (_) |";
+  setTextColor(TextColor::YELLOW);
+  cout << "| (_) |";
+  setTextColor(TextColor::BLUE);
+  cout << "| (_| |";
+  setTextColor(TextColor::GREEN);
+  cout << "| |";
+  setTextColor(TextColor::RED);
+  cout << "|  __/\n";
+
+  setTextColor(TextColor::BLUE);
+  cout << "  \\_____| ";
+  setTextColor(TextColor::RED);
+  cout << "\\___/  ";
+  setTextColor(TextColor::YELLOW);
+  cout << "\\___/  ";
+  setTextColor(TextColor::BLUE);
+  cout << "\\__, |";
+  setTextColor(TextColor::GREEN);
+  cout << "|_| ";
+  setTextColor(TextColor::RED);
+  cout << "\\___|\n ";
+
+  setTextColor(TextColor::BLUE);
+  cout << "                        __/ |       \n";
+
+  setTextColor(TextColor::BLUE);
+  cout << "                        |___/        \n";
+
+  cout << '\n';
   setTextColor(TextColor::WHITE);
 }
 
@@ -152,12 +219,20 @@ void App::showMenu() {
     showLogo();
 
     int cmd;
+    setTextColor(TextColor::RED);
     cout << "0. Quit\n";
+    setTextColor(TextColor::BLUE);
     cout << "1. Search\n";
+    setTextColor(TextColor::GREEN);
     cout << "2. Show history\n";
+    setTextColor(TextColor::YELLOW);
     cout << "3. Clear history\n";
+    setTextColor(TextColor::WHITE);
     cout << "Your choice: ";
     cin >> cmd;
+
+    clearScreen();
+    showLogo();
 
     if (cmd == 0) {
       break;
@@ -165,9 +240,13 @@ void App::showMenu() {
       processSearch();
     } else if (cmd == 2) {
       if (Global::searchHistory.empty()) {
+        setTextColor(TextColor::RED);
         cout << "You haven't searched for anything!\n";
+        setTextColor(TextColor::WHITE);
       } else {
+        setTextColor(TextColor::BLUE);
         cout << "You have searched for:\n";
+        setTextColor(TextColor::WHITE);
         for (int i = 0; i < (int)Global::searchHistory.size(); ++i) {
           cout << (i + 1) << ". " << Global::searchHistory[i] << '\n';
         }
@@ -175,7 +254,9 @@ void App::showMenu() {
       waitForEnter();
     } else if (cmd == 3) {
       Global::searchHistory.clear();
+      setTextColor(TextColor::BLUE);
       cout << "History cleared\n";
+      setTextColor(TextColor::WHITE);
       waitForEnter();
     } else {
       setTextColor(TextColor::RED);
@@ -187,19 +268,23 @@ void App::showMenu() {
 }
 
 void App::processSearch() {
-  clearScreen();
-  showLogo();
-
   string query;
+  setTextColor(TextColor::BLUE);
   cout << "Search for: ";
+  setTextColor(TextColor::WHITE);
   cin.ignore();
   getline(cin, query);
 
   while (true) {
     clearScreen();
     showLogo();
-    cout << "You have entered: " << query << '\n';
+    setTextColor(TextColor::BLUE);
+    cout << "You have entered: ";
+    setTextColor(TextColor::WHITE);
+    cout << query << '\n';
+    setTextColor(TextColor::RED);
     cout << "1. Begin searching\n";
+    setTextColor(TextColor::YELLOW);
     cout << "2. Show suggestions\n";
 
     int cmd;
@@ -241,6 +326,8 @@ void App::processSearch() {
 
   vector<Engine::QueryResult> res;
   Engine::processQuery(query, res);
+
+  clearScreen();
   showLogo();
   Engine::displayQueryResult(query, res);
 
@@ -251,17 +338,20 @@ void App::processSearch() {
 
 void App::run() {
   clearScreen();
+  showLogo();
+
   indexFiles();
-  cout << "\n\n";
   indexSynwords();
   indexStopwords();
 
+  setTextColor(TextColor::BLUE);
   waitForEnter("Indexing stage finished! Press Enter to continue...");
+  setTextColor(TextColor::WHITE);
 
   showMenu();
 
   // Reset text color
   setTextColor(TextColor::WHITE);
 
-  waitForEnter("App stopped! Press Enter to exit...");
+  waitForEnter("Good bye! Press Enter to exit...");
 }

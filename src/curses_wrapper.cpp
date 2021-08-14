@@ -107,7 +107,7 @@ CursesInitializer::~CursesInitializer() {
   std::cout.rdbuf(coutbuf);
   delete nbuf;
 
-  printw("App stopped! Press any key to exit...\n");
+  printw("Good bye! Press any key to exit...\n");
   refresh();
   getch();
 

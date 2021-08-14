@@ -130,15 +130,25 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
 }
 
 void Engine::displayQueryResult(const string& query, const vector<QueryResult>& final_res) {
-  std::cout << "Searched for: " << query << '\n';
-  std::cout << "Found " << final_res.size() << " results\n";
-  int k = std::min(10, (int)final_res.size());
-  if (k == 0) {
+  setTextColor(TextColor::BLUE);
+  std::cout << "Searched for: ";
+  setTextColor(TextColor::WHITE);
+  std::cout << query << '\n';
+
+  if (final_res.empty()) {
+    setTextColor(TextColor::RED);
+    std::cout << "Found 0 results\n\n";
+    setTextColor(TextColor::WHITE);
     waitForEnter();
-    return;
   }
 
+  int k = std::min(10, (int)final_res.size());
+
+  setTextColor(TextColor::BLUE);
+  std::cout << "Found " << final_res.size() << " results\n\n";
   std::cout << "Top " << k << " result(s):\n\n";
+  setTextColor(TextColor::WHITE);
+
   for (int i = 0; i < k; ++i) {
     displayFileResult(final_res[i]);
   }
