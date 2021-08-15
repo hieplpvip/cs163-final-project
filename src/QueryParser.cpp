@@ -98,6 +98,11 @@ void QueryParser::parseQueryString(const string &query, vector<vector<QueryClaus
       } else {
         int pos = find_next(query, ' ', i);
         string keyword = query.substr(i, pos - i);
+        if (keyword == "AND") {
+          i = pos + 1;
+          continue;
+        }
+
         if (isNumberRange(keyword)) {
           clauses.push_back({keyword, QueryType::NUMBER_RANGE});
         } else if (Global::trieStopWord.findWord(keyword) == nullptr) {
