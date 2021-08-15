@@ -15,11 +15,10 @@
 using std::cin, std::cout, std::cerr;
 using std::string, std::vector;
 
-App::App(bool verbose, bool use_full_data) {
+App::App(bool verbose) {
   Global::numFiles = 0;
   Global::numStopWords = 0;
   Global::verbose = verbose;
-  DATA_DIR = use_full_data ? "data-full/" : "data-small/";
 }
 
 App::~App() {}
@@ -384,6 +383,22 @@ void App::run() {
   clearScreen();
   showLogo();
 
+  int choice;
+  cout << "1. Full dataset\n";
+  cout << "2. Small dataset\n";
+  cin >> choice;
+
+  if (choice == 1) {
+    DATA_DIR = "data-full/";
+  } else if (choice == 2) {
+    DATA_DIR = "data-small/";
+  } else {
+    cout << "Invalid choice!\n";
+    return;
+  }
+
+  clearScreen();
+  showLogo();
   indexFiles();
   indexSynwords();
   indexStopwords();
