@@ -260,7 +260,7 @@ vector<int> Engine::processExclude(const string& keyword) {
 vector<pair<int, vector<int>>> Engine::processInTitle(const string& keyword) {
   cdebug << "[Engine::processInTitle] " << keyword << '\n';
 
-  // Find keywork in title trie
+  // Find keyword in title trie
   TrieNode* node = Global::trieTitle.findWord(keyword);
   if (node == nullptr) {
     // If not found, return empty list
@@ -272,7 +272,7 @@ vector<pair<int, vector<int>>> Engine::processInTitle(const string& keyword) {
 
   // Each occurrence is a pair of file ID and position
   // occurrences is guaranteed to be sorted
-  // We merge them by file ID
+  // Merge them by file ID
   int lastFileID = occurrences[0].first;
   res.push_back({lastFileID, {}});
   for (auto [fileID, pos] : occurrences) {
@@ -425,7 +425,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
   cdebug << "[Engine::processNumberRange] " << keyword << '\n';
 
-  // Find the position of '..'
+  // Find '..'
   int pos = -1;
   for (int i = 0; i + 1 < keyword.length(); i++) {
     if (keyword[i] == '.' && keyword[i + 1] == '.') {
