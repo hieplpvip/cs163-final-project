@@ -15,7 +15,7 @@ namespace Engine {
   };
 
   void processQuery(const string &query, vector<QueryResult> &final_res);
-  void displayQueryResult(const string &query, const vector<QueryResult> &final_res);
+  void displayQueryResult(const string &query, const vector<QueryResult> &final_res, double time);
   void displayFileResult(const QueryResult &res);
 
   void findNumInRange(TrieNode *root, const string &number, float &num1, float &num2, vector<string> &res);

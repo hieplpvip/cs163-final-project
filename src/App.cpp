@@ -4,9 +4,9 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 #include "Engine.h"
 #include "Global.h"
 #include "Utils.h"
@@ -366,12 +366,14 @@ void App::processSearch() {
     }
   }
 
+  double time = clock();
   vector<Engine::QueryResult> res;
   Engine::processQuery(query, res);
+  time = (clock() - time) / CLOCKS_PER_SEC;
 
   clearScreen();
   showLogo();
-  Engine::displayQueryResult(query, res);
+  Engine::displayQueryResult(query, res, time);
 
   if (std::find(Global::searchHistory.begin(), Global::searchHistory.end(), query) == Global::searchHistory.end()) {
     Global::searchHistory.push_back(query);
