@@ -12,7 +12,7 @@
 using std::string, std::vector;
 
 namespace Global {
-  extern vector<string> filesList ;
+  extern vector<string> filesList;
   extern vector<vector<string>> fileTitleWords, fileContentWords;
   extern int numFiles, numStopWords, numSynGroups;
 
