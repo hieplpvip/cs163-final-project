@@ -368,7 +368,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
     kmp_input.emplace_back(tokenID);
     all.emplace_back(fileID, pos, tokenID);
     if (i + 1 == (int)occurrences.size() || (fileID != get<0>(occurrences[i + 1]) || pos + 2 < get<1>(occurrences[i + 1]))) {
-      // FIXME: check if pos + 1 is valid
+      // FIXME: check if pos + 1 is valid 
       kmp_input.emplace_back(numTokens);
       all.emplace_back(fileID, pos + 1, numTokens);
       lastPos = pos + 1;
@@ -435,7 +435,7 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
   }
   assert(pos != -1);
 
-  // Extract and convert to integers
+  // Extract num range and convert to integers
   string x = keyword.substr(1, pos - 1), y = keyword.substr(pos + 3);  // skip $
   int num1 = std::stoi(x), num2 = std::stoi(y);
   assert(num1 >= 0 && num2 >= 0);
