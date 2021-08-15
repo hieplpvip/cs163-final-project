@@ -14,10 +14,11 @@
 using std::cin, std::cout, std::cerr;
 using std::string, std::vector;
 
-App::App(bool verbose) {
+App::App(bool verbose, bool use_full_data) {
   Global::numFiles = 0;
   Global::numStopWords = 0;
   Global::verbose = verbose;
+  DATA_DIR = use_full_data ? "data-full/" : "data-small/";
 }
 
 App::~App() {}
@@ -30,7 +31,7 @@ void App::indexFiles() {
   double time = clock();
 
   // Read filenames
-  std::ifstream index_list("data/__index.txt");
+  std::ifstream index_list(DATA_DIR + "___index.txt");
   if (!index_list.is_open()) {
     setTextColor(TextColor::RED);
     cerr << "Error: Could not open index file.\n";
@@ -38,7 +39,7 @@ void App::indexFiles() {
     exit(1);
   }
   string filename;
-  while (index_list >> filename) {
+  while (getline(index_list, filename)) {
     Global::filesList.push_back(filename);
   }
   index_list.close();
@@ -56,11 +57,12 @@ void App::indexFiles() {
 
     auto &title = Global::fileTitleWords[fileID];
     auto &content = Global::fileContentWords[fileID];
-    if (!TXTParser::parseFileToWords("data/" + filename, title, content)) {
-      setTextColor(TextColor::RED);
-      cerr << "Error: Could not parse file " << filename << '\n';
-      setTextColor(TextColor::WHITE);
-      exit(1);
+    if (!TXTParser::parseFileToWords(DATA_DIR + filename, title, content)) {
+      //setTextColor(TextColor::RED);
+      //cerr << "Error: Could not parse file " << filename << '\n';
+      //setTextColor(TextColor::WHITE);
+      //exit(1);
+      continue;
     }
     cdebug << "Found " << title.size() << " words in title, " << content.size() << " in content\n";
 
