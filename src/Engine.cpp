@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cassert>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <tuple>
@@ -130,11 +131,14 @@ void Engine::processQuery(const string& query, vector<QueryResult>& final_res) {
   });
 }
 
-void Engine::displayQueryResult(const string& query, const vector<QueryResult>& final_res) {
+void Engine::displayQueryResult(const string& query, const vector<QueryResult>& final_res, double time) {
   setTextColor(TextColor::BLUE);
   std::cout << "Searched for: ";
   setTextColor(TextColor::WHITE);
   std::cout << query << '\n';
+  setTextColor(TextColor::GREEN);
+  std::cout << "Time taken: " << std::setprecision(2) << time << " seconds\n";
+  setTextColor(TextColor::WHITE);
 
   if (final_res.empty()) {
     setTextColor(TextColor::RED);
@@ -368,7 +372,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
     kmp_input.emplace_back(tokenID);
     all.emplace_back(fileID, pos, tokenID);
     if (i + 1 == (int)occurrences.size() || (fileID != get<0>(occurrences[i + 1]) || pos + 2 < get<1>(occurrences[i + 1]))) {
-      // FIXME: check if pos + 1 is valid 
+      // FIXME: check if pos + 1 is valid
       kmp_input.emplace_back(numTokens);
       all.emplace_back(fileID, pos + 1, numTokens);
       lastPos = pos + 1;
@@ -440,22 +444,16 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
   int num1 = std::stoi(x), num2 = std::stoi(y);
   assert(num1 >= 0 && num2 >= 0);
 
-  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) 
-  {
+  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) {
     vector<pair<int, vector<int>>> C;
-    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) 
-    {
-      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) 
-      {
+    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
+      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) {
         C.push_back(A[i]);
         ++i;
-      } 
-      else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
+      } else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
         C.push_back(B[j]);
         ++j;
-      } 
-      else 
-      {
+      } else {
         // A[i].first == B[j].first
         C.push_back({A[i].first, {}});
         auto& pos = C.back().second;
