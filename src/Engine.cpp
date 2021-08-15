@@ -198,7 +198,7 @@ void Engine::displayFileResult(const QueryResult& res) {
 vector<pair<int, vector<int>>> Engine::processInclude(const string& keyword) {
   cdebug << "[Engine::processInclude] " << keyword << '\n';
 
-  // Find keywork in content trie
+  // Find keyword in content trie
   TrieNode* node = Global::trieContent.findWord(keyword);
   if (node == nullptr) {
     // If not found, return empty list
@@ -218,7 +218,7 @@ vector<pair<int, vector<int>>> Engine::processInclude(const string& keyword) {
       lastFileID = fileID;
       res.push_back({lastFileID, {}});
     }
-    res.back().second.emplace_back(pos);
+    res.back().second.push_back(pos);
   }
 
   if (Global::verbose) {
