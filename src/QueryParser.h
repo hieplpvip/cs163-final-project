@@ -28,3 +28,4 @@ namespace QueryParser {
 };
 
 #endif
+// some fix on the function synonym
