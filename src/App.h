@@ -16,7 +16,7 @@ private:
   void processSearch();
 
 public:
-  App(bool verbose, bool use_full_data);
+  App(bool verbose);
   ~App();
   void run();
 };
