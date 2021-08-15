@@ -447,11 +447,11 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
     {
       if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) 
       {
-        C.push_back(B[i]);
+        C.push_back(A[i]);
         ++i;
       } 
       else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
-        C.push_back(A[j]);
+        C.push_back(B[j]);
         ++j;
       } 
       else 
