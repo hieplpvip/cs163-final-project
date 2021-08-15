@@ -260,7 +260,7 @@ vector<int> Engine::processExclude(const string& keyword) {
 vector<pair<int, vector<int>>> Engine::processInTitle(const string& keyword) {
   cdebug << "[Engine::processInTitle] " << keyword << '\n';
 
-  // Find keywork in title trie
+  // Find keyword in title trie
   TrieNode* node = Global::trieTitle.findWord(keyword);
   if (node == nullptr) {
     // If not found, return empty list
@@ -272,7 +272,7 @@ vector<pair<int, vector<int>>> Engine::processInTitle(const string& keyword) {
 
   // Each occurrence is a pair of file ID and position
   // occurrences is guaranteed to be sorted
-  // We merge them by file ID
+  // Merge them by file ID
   int lastFileID = occurrences[0].first;
   res.push_back({lastFileID, {}});
   for (auto [fileID, pos] : occurrences) {
@@ -368,7 +368,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
     kmp_input.emplace_back(tokenID);
     all.emplace_back(fileID, pos, tokenID);
     if (i + 1 == (int)occurrences.size() || (fileID != get<0>(occurrences[i + 1]) || pos + 2 < get<1>(occurrences[i + 1]))) {
-      // FIXME: check if pos + 1 is valid
+      // FIXME: check if pos + 1 is valid 
       kmp_input.emplace_back(numTokens);
       all.emplace_back(fileID, pos + 1, numTokens);
       lastPos = pos + 1;
@@ -425,7 +425,7 @@ vector<pair<int, vector<int>>> Engine::processExactMatch(const string& keyword) 
 vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword) {
   cdebug << "[Engine::processNumberRange] " << keyword << '\n';
 
-  // Find the position of '..'
+  // Find '..'
   int pos = -1;
   for (int i = 0; i + 1 < keyword.length(); i++) {
     if (keyword[i] == '.' && keyword[i + 1] == '.') {
@@ -435,21 +435,27 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
   }
   assert(pos != -1);
 
-  // Extract and convert to integers
+  // Extract num range and convert to integers
   string x = keyword.substr(1, pos - 1), y = keyword.substr(pos + 3);  // skip $
   int num1 = std::stoi(x), num2 = std::stoi(y);
   assert(num1 >= 0 && num2 >= 0);
 
-  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) {
+  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) 
+  {
     vector<pair<int, vector<int>>> C;
-    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
-      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) {
+    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) 
+    {
+      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) 
+      {
         C.push_back(A[i]);
         ++i;
-      } else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
+      } 
+      else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
         C.push_back(B[j]);
         ++j;
-      } else {
+      } 
+      else 
+      {
         // A[i].first == B[j].first
         C.push_back({A[i].first, {}});
         auto& pos = C.back().second;

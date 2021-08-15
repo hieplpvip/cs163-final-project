@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
 #include "Engine.h"
 #include "Global.h"
 #include "Utils.h"
@@ -98,7 +99,9 @@ void App::indexSynwords() {
     exit(1);
   }
 
-  string line, tmp, key = "";
+  string line;
+  string tmp;
+  string key = "";
   while (getline(f, line)) {
     if (line[0] == '=') {
       key.clear();
