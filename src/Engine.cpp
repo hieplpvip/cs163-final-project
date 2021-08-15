@@ -440,16 +440,22 @@ vector<pair<int, vector<int>>> Engine::processNumberRange(const string& keyword)
   int num1 = std::stoi(x), num2 = std::stoi(y);
   assert(num1 >= 0 && num2 >= 0);
 
-  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) {
+  auto mergeOccurrences = [](vector<pair<int, vector<int>>>& A, vector<pair<int, vector<int>>>& B) 
+  {
     vector<pair<int, vector<int>>> C;
-    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) {
-      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) {
-        C.push_back(A[i]);
+    for (int i = 0, j = 0; i < (int)A.size() || j < (int)B.size();) 
+    {
+      if (j == (int)B.size() || (i < (int)A.size() && A[i].first < B[j].first)) 
+      {
+        C.push_back(B[i]);
         ++i;
-      } else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
-        C.push_back(B[j]);
+      } 
+      else if (i == (int)A.size() || (j < (int)B.size() && A[i].first > B[j].first)) {
+        C.push_back(A[j]);
         ++j;
-      } else {
+      } 
+      else 
+      {
         // A[i].first == B[j].first
         C.push_back({A[i].first, {}});
         auto& pos = C.back().second;
