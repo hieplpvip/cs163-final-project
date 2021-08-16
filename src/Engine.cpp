@@ -148,7 +148,7 @@ void Engine::displayQueryResult(const string& query, const vector<QueryResult>& 
     return;
   }
 
-  int k = std::min(10, (int)final_res.size());
+  int k = std::min(5, (int)final_res.size());
 
   setTextColor(TextColor::BLUE);
   std::cout << "Found " << final_res.size() << " results\n\n";
