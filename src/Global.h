@@ -2,6 +2,7 @@
 #define GLOBAL_H
 
 #include <string>
+#include <unordered_set>
 #include <vector>
 #include "Trie.h"
 #include "Utils.h"
@@ -12,6 +13,7 @@
 using std::string, std::vector;
 
 namespace Global {
+  extern std::unordered_set<string> filesSet;
   extern vector<string> filesList;
   extern vector<vector<string>> fileTitleWords, fileContentWords;
   extern int numFiles, numStopWords, numSynGroups;
