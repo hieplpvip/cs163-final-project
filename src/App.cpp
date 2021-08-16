@@ -39,8 +39,13 @@ void App::indexFiles() {
     exit(1);
   }
   string filename;
+  int numNewFiles = 0;
   while (getline(index_list, filename)) {
-    Global::filesList.push_back(filename);
+    if (!Global::filesSet.count(filename)) {
+      ++numNewFiles;
+      Global::filesSet.insert(filename);
+      Global::filesList.push_back(filename);
+    }
   }
   index_list.close();
 
@@ -48,7 +53,7 @@ void App::indexFiles() {
   Global::numFiles = Global::filesList.size();
   Global::fileTitleWords.resize(Global::numFiles);
   Global::fileContentWords.resize(Global::numFiles);
-  for (int fileID = 0; fileID < Global::numFiles; ++fileID) {
+  for (int fileID = Global::numFiles - numNewFiles; fileID < Global::numFiles; ++fileID) {
     const string &filename = Global::filesList[fileID];
 
     setTextColor(TextColor::BLUE);
@@ -78,7 +83,7 @@ void App::indexFiles() {
   time = (clock() - time) / CLOCKS_PER_SEC;
 
   setTextColor(TextColor::GREEN);
-  cout << "Done indexing " << Global::numFiles << " files in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
+  cout << "Done indexing " << numNewFiles << " files in " << std::fixed << std::setprecision(2) << time << " seconds!\n";
   cout << "trieTitle has " << Global::trieTitle.numWords << " words\n";
   cout << "trieContent has " << Global::trieContent.numWords << " words\n\n";
   setTextColor(TextColor::WHITE);
@@ -248,6 +253,8 @@ void App::showMenu() {
     cout << "2. Show history\n";
     setTextColor(TextColor::YELLOW);
     cout << "3. Clear history\n";
+    setTextColor(TextColor::MAGENTA);
+    cout << "4. Index new data files\n";
     setTextColor(TextColor::WHITE);
     cout << "Your choice: ";
     cin >> cmd;
@@ -280,6 +287,11 @@ void App::showMenu() {
       cout << "History cleared\n\n";
       setTextColor(TextColor::WHITE);
       waitForEnter();
+    } else if (cmd == 4) {
+      indexFiles();
+      setTextColor(TextColor::BLUE);
+      waitForEnter("Indexing stage finished! Press Enter to continue...");
+      setTextColor(TextColor::WHITE);
     } else {
       setTextColor(TextColor::RED);
       cout << "Error: Invalid choice\n\n";

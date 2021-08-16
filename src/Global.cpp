@@ -1,6 +1,7 @@
 #include "Global.h"
 
 namespace Global {
+  std::unordered_set<string> filesSet;
   vector<string> filesList;
   vector<vector<string>> fileTitleWords, fileContentWords;
   int numFiles = 0, numStopWords = 0, numSynGroups = 0;
